@@ -2,12 +2,12 @@ from google.genai import types
 
 from app.llm import MODEL, generate
 
-
+# THI IS TOOL
 # 1. A fake tool: a normal Python function
 def get_weather(city: str) -> dict:
     return {"city": city, "temp_c": 31, "condition": "sunny"}  # fake data
 
-
+# THI IS TOOL
 # 2. Describe the tool to the model (it never sees your Python code, only this)
 weather_tool = types.Tool(function_declarations=[{
     "name": "get_weather",
