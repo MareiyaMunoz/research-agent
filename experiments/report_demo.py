@@ -4,8 +4,8 @@ from app.agent.loop import run_agent
 from app.report import render_report
 
 question = (
-    "What are the trade-offs between using pgvector inside PostgreSQL and a "
-    "dedicated vector database like Pinecone for a small RAG app?"
+    "What are the pros and cons of using Redis versus PostgreSQL for "
+    "session storage in a web application?"
 )
 
 result = run_agent(question, max_steps=10)
