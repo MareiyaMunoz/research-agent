@@ -1,0 +1,1212 @@
+{
+  "q01": {
+    "id": "q01",
+    "question": "What are the pros and cons of using Redis versus PostgreSQL for session storage in a web application?",
+    "answer": "When choosing between Redis and PostgreSQL for session storage in a web application, consider the following pros and cons:\n\n**Redis**\n\n**Pros:**\n*   **Exceptional Speed:** Redis is an in-memory key-value store, providing sub-millisecond latency for read and write operations, making it extremely fast for session management [1].\n*   **Horizontal Scalability:** It can easily scale horizontally by distributing data across multiple Redis instances through clustering [1].\n*   **Optimized for Transient Data:** Redis is well-suited for temporary data that requires quick access, which aligns with the nature of session data [1].\n*   **Simple Data Model:** Its key-value structure is straightforward for storing serialized session states [1].\n\n**Cons:**\n*   **Persistence Considerations:** While Redis offers persistence options like RDB snapshots and AOF logging, its primary function is an in-memory store. Data loss is a higher risk if persistence isn't meticulously configured [1].\n*   **Higher Memory Cost:** As an in-memory database, Redis demands significant RAM, which can become expensive, especially as data scales [1].\n*   **Limited Querying:** It lacks capabilities for complex queries, aggregations, or SQL-like operations on session data [1].\n*   **Operational Complexity in Production:** For critical workloads, Redis might present more challenges in debugging, governance, and overall operational simplicity compared to PostgreSQL, potentially making it less defensible in a production environment [2].\n\n**PostgreSQL**\n\n**Pros:**\n*   **Data Durability and Persistence:** PostgreSQL is designed for full persistence and durability, ensuring session data is reliably stored on disk and recoverable even in the event of system failures. It uses write-ahead logging (WAL) for durable transactions [1, 2].\n*   **Data Integrity and ACID Compliance:** It offers full ACID (Atomicity, Consistency, Isolation, Durability) compliance, guaranteeing data integrity and reliability in transactional scenarios [1].\n*   **Robustness:** As a relational database management system, it provides a robust platform with support for complex data types and relationships [1].\n*   **Operational Simplicity for Critical Workloads:** For production systems requiring durable state, auditability, and operational simplicity, PostgreSQL can be a more defensible choice. It tends to be easier to manage under cost, platform, and security constraints [2].\n\n**Cons:**\n*   **Slower Performance:** PostgreSQL is generally not as fast as Redis for raw read/write operations because it is disk-based [1].\n*   **Higher Resource Consumption:** It typically requires more disk space and CPU resources due to its disk-based storage and capabilities for complex queries [1].\n*   **Scalability for Raw Speed:** While supporting both vertical and horizontal scaling, achieving high performance for simple key-value lookups in large-scale environments often demands more resources and intricate tuning compared to Redis [1].\n\nIn conclusion, Redis excels in scenarios prioritizing speed and horizontal scalability for simple, transient session data. PostgreSQL, conversely, offers superior data durability, integrity, and operational simplicity for critical workloads, though at a lower raw speed. The optimal choice depends on the specific performance, durability, and operational requirements of the web application.",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://www.svix.com/resources/faq/redis-vs-postgres",
+        "title": "Redis vs Postgres | Svix Resources",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://www.alongside.team/blog/redis-vs-postgresql-agent-memory-session-state",
+        "title": "Why PostgreSQL Is Better Than Redis for Agent Memory and Session State | Alongside",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 11.2,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "Redis vs PostgreSQL for session storage pros and cons"
+        },
+        "ok": true,
+        "duration_ms": 31,
+        "error": null,
+        "result_chars": 7420
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.svix.com/resources/faq/redis-vs-postgres"
+        },
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 6136
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.alongside.team/blog/redis-vs-postgresql-agent-memory-session-state"
+        },
+        "ok": true,
+        "duration_ms": 14,
+        "error": null,
+        "result_chars": 4935
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 3388
+      }
+    ]
+  },
+  "q02": {
+    "id": "q02",
+    "question": "What are the main differences between Docker containers and virtual machines?",
+    "answer": "Docker containers and virtual machines (VMs) are both virtualization technologies used for application deployment, but they differ significantly in their approach and characteristics [1, 2].\n\nHere are the main differences:\n\n*   **Virtualization Level**\n    *   **Virtual Machines (VMs)** virtualize the entire machine down to the hardware layers. Each VM runs its own full-fledged guest operating system (OS) on top of a hypervisor, which manages the virtual hardware resources [1, 2].\n    *   **Docker Containers** virtualize at the software layers above the operating system. They share the host OS kernel and only package the application code and its dependencies (libraries, system tools, runtime) in an isolated environment [1, 2].\n\n*   **Resource Usage and Efficiency**\n    *   **VMs** are more resource-intensive as each VM includes a complete OS, leading to higher overhead in terms of CPU, memory, and storage [1, 2].\n    *   **Containers** are lightweight because they share the host OS kernel, consuming fewer resources and allowing for higher density (more containers on a single host) [1, 2].\n\n*   **Isolation and Security**\n    *   **VMs** offer strong isolation as each VM is a standalone system, isolated from other VMs and the host. An exploit in one VM is unlikely to affect others on the same host [2].\n    *   **Containers** share the host OS kernel, so while they provide process isolation, the security is dependent on the host OS. A vulnerability in the host OS or a container exploit could potentially impact other containers [2].\n\n*   **Startup Time and Portability**\n    *   **VMs** have slower startup times due to booting a full OS [2]. They are highly portable across different hardware architectures [1].\n    *   **Containers** start much faster as they don't need to boot a full OS [2]. They are highly portable across different environments (development, testing, production) because they abstract OS details [1].\n\n*   **Images**\n    *   **VM Images** create backups of the operating system and specify all necessary system resources to run applications [1].\n    *   **Docker Images** create application environment backups, containing the application code and its dependencies [1].\n\n*   **Objective**\n    *   **VMs** were designed to allow multiple operating systems to run on a single physical machine, abstracting hardware details and enabling more efficient hardware resource utilization [1].\n    *   **Docker** was designed to provide a lightweight and portable way to package and run applications in isolated, reproducible environments, addressing the challenges of deploying applications consistently across different environments [1].\n\nIn essence, VMs are like independent systems with their own full environments, while containers are more efficient, sharing the host system's resources without sacrificing isolation [1, 2].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://aws.amazon.com/compare/the-difference-between-docker-vm",
+        "title": "Docker vs VM - Difference Between Application Deployment Technologies - AWS",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://www.atlassian.com/microservices/cloud-computing/containers-vs-vms",
+        "title": "Containers vs Virtual Machines | Atlassian",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 13.8,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "Docker containers vs virtual machines differences"
+        },
+        "ok": true,
+        "duration_ms": 2577,
+        "error": null,
+        "result_chars": 7297
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://aws.amazon.com/compare/the-difference-between-docker-vm"
+        },
+        "ok": true,
+        "duration_ms": 1389,
+        "error": null,
+        "result_chars": 6157
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.atlassian.com/microservices/cloud-computing/containers-vs-vms"
+        },
+        "ok": true,
+        "duration_ms": 1860,
+        "error": null,
+        "result_chars": 6164
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 2865
+      }
+    ]
+  },
+  "q03": {
+    "id": "q03",
+    "question": "What is database connection pooling and why is it used?",
+    "answer": "Database connection pooling is a technique used to enhance the performance and scalability of applications by managing a cache of reusable database connections [1, 2]. Instead of establishing a new connection for every database operation, a pool of pre-opened connections is maintained, from which applications can borrow a connection as needed and return it once the operation is complete [1, 2]. This is typically managed by a connection pooler software situated between the client application and the database server [2].\n\nConnection pooling is used for several key reasons:\n*   **Improved Performance and Reduced Latency:** Opening and closing a database connection is a resource-intensive process involving multiple steps such as DNS lookups, TCP handshakes, TLS handshakes, and authentication [1, 2]. By reusing existing connections from the pool, these costly steps are avoided for each request, significantly reducing overhead and improving application response times, especially in high-traffic scenarios [1, 2].\n*   **Efficient Resource Management:** Each active database connection consumes server resources like memory and CPU [2]. A large number of concurrent connections can exhaust these resources, leading to performance degradation, long queues, and failed requests [1, 2]. Connection pooling helps manage this by limiting the total number of connections to the database and ensuring their efficient reuse, preventing the database from becoming overwhelmed [2].\n*   **Enhanced Scalability:** As applications grow and handle more users and requests, the demand for database connections increases. Connection pooling allows applications to scale more effectively by efficiently handling a higher volume of database operations without requiring a proportional increase in the database server's resources for connection management [1, 2].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://www.cockroachlabs.com/blog/what-is-connection-pooling",
+        "title": "What is connection pooling, and why should you care",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://www.prisma.io/dataguide/database-tools/connection-pooling",
+        "title": "What is connection pooling in database management?",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 15.4,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "database connection pooling what is it and why is it used"
+        },
+        "ok": true,
+        "duration_ms": 2671,
+        "error": null,
+        "result_chars": 7675
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.cockroachlabs.com/blog/what-is-connection-pooling"
+        },
+        "ok": true,
+        "duration_ms": 1906,
+        "error": null,
+        "result_chars": 6160
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.prisma.io/dataguide/database-tools/connection-pooling"
+        },
+        "ok": true,
+        "duration_ms": 1031,
+        "error": null,
+        "result_chars": 6163
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 1851
+      }
+    ]
+  },
+  "q04": {
+    "id": "q04",
+    "question": "What is the N+1 query problem and how do you fix it?",
+    "answer": "The N+1 query problem is a performance anti-pattern in database interactions where an application makes one initial query to retrieve a list of parent records, and then executes an additional query for each of those \"N\" records to fetch their associated data [1], [2]. This results in a total of N+1 queries, instead of a single, more optimized query [1].\n\nFor example, if you fetch a list of 10 authors (1 query), and then for each author, you separately query their books (10 more queries), you end up with 11 queries when a single query could have retrieved all the data [1]. This issue is particularly common when using Object-Relational Mappers (ORMs) due to their default lazy-loading behavior, where related data is only fetched when explicitly accessed [1], [2].\n\nThe N+1 query problem leads to:\n*   **Increased Database Load**: More round trips to the database server.\n*   **Higher Latency**: Each round trip adds time, accumulating into slower response times.\n*   **Wasted Resources**: More time spent on communication overhead rather than data processing [1].\n\nTo fix the N+1 query problem, the core solution is to retrieve all necessary related data in fewer, more efficient queries, primarily through **eager loading** [1], [2]. Here are the common strategies:\n\n1.  **Eager Loading with JOINs (SQL-level)**: The most fundamental approach is to write a single SQL query that uses `JOIN` clauses to fetch data from multiple tables simultaneously [1], [2].\n    ```sql\n    SELECT A.id AS author_id, A.name AS author_name,\n           B.id AS book_id, B.title AS book_title\n    FROM Authors A\n    LEFT JOIN Books B ON A.id = B.author_id;\n    ```\n    This retrieves all authors and their books in one go [1].\n\n2.  **Eager Loading with ORMs**: Most ORMs offer specific methods to instruct them to load related data upfront. This could involve generating a single `JOIN` query or performing a few optimized queries and then joining the data in memory [1], [2]. Examples include `includes` in Ruby on Rails (ActiveRecord) or `joinedload` in SQLAlchemy [1], [2].\n\n3.  **Batched Loading / Dataloaders**: For complex scenarios, such as in GraphQL, dataloaders can collect multiple requests for the same type of related data within a single request cycle and then make a single, batched database call for them all [1].\n\n4.  **Caching Results**: If the related data doesn't change frequently, caching the results of eager-loaded queries at the application level (e.g., Redis, Memcached) or using ORM's built-in caching mechanisms can significantly reduce database hits for subsequent requests [1].\n\n5.  **Denormalization (with caution)**: In very specific cases, if a particular piece of related data is accessed frequently and changes rarely, you might consider storing a copy of that data directly in the parent table. However, this introduces data redundancy and requires careful management to maintain consistency [1].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://shiftasia.com/community/n-1-queries",
+        "title": "N+1 queries problem and how to resolve",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://dev.to/lovestaco/the-n1-query-problem-the-silent-performance-killer-2b1c",
+        "title": "The N+1 Query Problem: The Silent Performance Killer - DEV Community",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 13.7,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "N+1 query problem"
+        },
+        "ok": true,
+        "duration_ms": 1859,
+        "error": null,
+        "result_chars": 5751
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://shiftasia.com/community/n-1-queries"
+        },
+        "ok": true,
+        "duration_ms": 1077,
+        "error": null,
+        "result_chars": 6181
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://dev.to/lovestaco/the-n1-query-problem-the-silent-performance-killer-2b1c"
+        },
+        "ok": true,
+        "duration_ms": 1077,
+        "error": null,
+        "result_chars": 6237
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 2920
+      }
+    ]
+  },
+  "q05": {
+    "id": "q05",
+    "question": "Compare REST and GraphQL. When would you choose each?",
+    "answer": "REST (Representational State Transfer) and GraphQL are two distinct architectural approaches for designing APIs that facilitate data exchange between client applications and servers. While both are powerful and widely used, they differ significantly in their design philosophies, data fetching mechanisms, and ideal use cases [1, 2].\n\n**Key Differences:**\n\n*   **Structure and Endpoints:**\n    *   **REST:** Employs multiple endpoints, with each resource typically having its own unique URL. Clients interact with these resources using standard HTTP methods like GET, POST, PUT, and DELETE [1].\n    *   **GraphQL:** Operates over a single endpoint. Clients send queries to this endpoint, specifying the exact data they need [1].\n*   **Data Fetching:**\n    *   **REST:** Returns data in a fixed structure defined by the server. This can lead to \"over-fetching\" (receiving more data than needed) or \"under-fetching\" (requiring multiple requests to get all necessary data) [1, 2].\n    *   **GraphQL:** Allows the client to precisely specify the required data fields. The server then returns only that data, eliminating over-fetching and under-fetching [1, 2].\n*   **Schema:**\n    *   **REST:** Does not strictly require a server-side schema, though tools like OpenAPI can define one [1, 2].\n    *   **GraphQL:** Mandates a strongly typed schema that defines all available data types and their relationships, acting as a contract between client and server [1, 2].\n*   **Versioning:**\n    *   **REST:** Often handles versioning through URL paths (e.g., `/v1/users`, `/v2/users`), which can complicate maintenance [1].\n    *   **GraphQL:** Manages evolution by adding or deprecating fields within the schema, reducing the need for explicit API versioning [1].\n*   **Error Handling:**\n    *   **REST:** Utilizes standard HTTP status codes to indicate the success or failure of a request [1].\n    *   **GraphQL:** Typically returns an HTTP 200 OK status, with any errors included in the response payload [1].\n*   **Caching:**\n    *   **REST:** Benefits from built-in HTTP caching mechanisms [1, 2].\n    *   **GraphQL:** Requires custom caching strategies as it operates over a single endpoint [1].\n*   **Learning Curve:**\n    *   **REST:** Generally has a lower learning curve due to its reliance on familiar HTTP semantics [1].\n    *   **GraphQL:** Has a higher learning curve, as it introduces a new query language and concepts [1].\n\n**When to Choose Each:**\n\n*   **Choose REST when:**\n    *   **Simplicity and Standardization are Key:** REST is straightforward to implement and widely understood, leveraging existing HTTP infrastructure [1, 2].\n    *   **Public APIs:** Ideal for public-facing APIs where resources are well-defined and predictable, and caching is important (e.g., Twitter, Stripe) [1].\n    *   **Microservices Architectures:** Fits well in environments where services expose distinct resources [1].\n    *   **Stable Data Models:** Best for applications with stable and predictable data structures [1].\n    *   **CRUD-style Backends:** Maps naturally to Create, Read, Update, Delete operations [1].\n\n*   **Choose GraphQL when:**\n    *   **Flexibility and Efficiency are Paramount:** Provides clients with precise control over data fetching, leading to optimized queries and reduced network overhead [1, 2].\n    *   **Complex UIs and Multi-Client Environments:** Excellent for complex user interfaces that aggregate data from various sources or for serving different clients (web, mobile, IoT) with varying data needs [1].\n    *   **Rapidly Evolving APIs:** Its schema-driven approach allows for easier API evolution without breaking existing clients [1].\n    *   **Real-time Applications:** Supports subscriptions for real-time data updates [1].\n    *   **Avoiding Over- and Under-fetching:** Solves the problem of fetching too much or too little data, especially over limited network conditions [2].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://blog.postman.com/graphql-vs-rest",
+        "title": "GraphQL vs REST | Postman Blog",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://aws.amazon.com/compare/the-difference-between-graphql-and-rest",
+        "title": "GraphQL vs REST API - Difference Between API Design Architectures - AWS",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 32.4,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "REST vs GraphQL comparison"
+        },
+        "ok": true,
+        "duration_ms": 1468,
+        "error": null,
+        "result_chars": 7519
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://blog.postman.com/graphql-vs-rest"
+        },
+        "ok": true,
+        "duration_ms": 1827,
+        "error": null,
+        "result_chars": 6206
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://aws.amazon.com/compare/the-difference-between-graphql-and-rest"
+        },
+        "ok": true,
+        "duration_ms": 1500,
+        "error": null,
+        "result_chars": 6185
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 3911
+      }
+    ]
+  },
+  "q06": {
+    "id": "q06",
+    "question": "What problem does a CDN solve, and what are its limitations?",
+    "answer": "A Content Delivery Network (CDN) solves the problem of network congestion and slow content delivery by distributing web content closer to users [1]. When content providers began delivering rich web content like graphics and video, getting this content from centrally located servers to individual users became too slow. CDNs address this by caching copies of files in geographically distributed data centers, also known as points of presence (PoPs), allowing users to access content from a server near their physical location. This process reduces page load times and improves web performance by lowering latency and balancing network loads [1].\n\nHowever, CDNs have several limitations [2]:\n*   **Minimal Latency Gains for Localized Traffic**: If the majority of users are geographically close to the origin server, the performance improvements from a CDN may be minimal, potentially adding unnecessary complexity and cost [2].\n*   **Less Effective for Highly Dynamic or Non-Cacheable Content**: CDNs are most effective for static, cacheable content. For content that changes frequently, is personalized, or consists of uncacheable API responses, the benefits of edge caching are significantly reduced, and the CDN may act more as a reverse proxy than a true offload layer [2].\n*   **Complexity and New Bug Types**: Introducing a CDN adds configuration complexity (origins, rules, headers, cache keys) and can lead to new types of bugs, such as stale assets, misrouted requests, or subtle header mismatches [2].\n*   **Version Skew and Partial Rollouts**: CDNs can complicate deployments by causing version skew (new HTML referencing old cached JavaScript or CSS) or partial rollouts where different regions see different versions of content for extended periods [2].\n*   **Cache Stampedes**: A problematic cache invalidation can trigger a \"cache stampede,\" causing all edge servers to simultaneously refetch content from the origin, leading to massive origin server load [2].\n*   **Capacity Limitations**: CDNs have a set capacity, and during traffic spikes or major events, some traffic might be rerouted to more distant areas, leading to diminished performance [2].\n*   **Limited Support for Custom Protocols**: CDNs are primarily designed for HTTP requests and may not support customized TCP protocols, which could necessitate building a separate infrastructure for companies requiring such customizations [2].\n*   **Data Residency and Regulation Concerns**: For heavily regulated sectors (e.g., healthcare, finance) with strict data residency requirements, involving a CDN necessitates strong governance and contractual guarantees [2].\n*   **Not a Fix for Origin Server Bottlenecks**: A CDN will not resolve performance issues stemming from slow database queries or under-provisioned application servers; it primarily addresses network-related bottlenecks [2].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://www.akamai.com/glossary/what-is-a-cdn",
+        "title": "What is a Content Delivery Network (CDN)? | Akamai",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://blog.blazingcdn.com/en-us/when-not-to-use-a-cdn-limitations-and-challenges-explained",
+        "title": "When Not to Use a CDN: Limitations and Challenges Explained",
+        "step": 3
+      }
+    ],
+    "steps": 4,
+    "reached_limit": false,
+    "duration_s": 21.2,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "problems solved by CDN and its limitations"
+        },
+        "ok": true,
+        "duration_ms": 3296,
+        "error": null,
+        "result_chars": 6588
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.akamai.com/glossary/what-is-a-cdn"
+        },
+        "ok": true,
+        "duration_ms": 30,
+        "error": null,
+        "result_chars": 6126
+      },
+      {
+        "step": 3,
+        "action": "read_page",
+        "args": {
+          "url": "https://blog.blazingcdn.com/en-us/when-not-to-use-a-cdn-limitations-and-challenges-explained"
+        },
+        "ok": true,
+        "duration_ms": 2000,
+        "error": null,
+        "result_chars": 6193
+      },
+      {
+        "step": 4,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 2864
+      }
+    ]
+  },
+  "q07": {
+    "id": "q07",
+    "question": "What is the TLS handshake and why does HTTPS need it?",
+    "answer": "The TLS (Transport Layer Security) handshake is a crucial communication process that initiates a secure session between a client (like a web browser) and a server [1]. It's a series of steps that allows two parties to authenticate each other, agree on encryption standards, and establish a secure channel for transferring data [2]. This process establishes the symmetric encryption parameters needed to protect data integrity and privacy across the network [1].\n\nThe primary functions of the TLS handshake include:\n*   **Parameter negotiation**: The client and server agree on a common set of cryptographic algorithms (a cipher suite) for the session [1, 2].\n*   **Authentication**: The server typically presents a digital certificate to prove its identity to the client, preventing attackers from redirecting traffic to malicious sites [1, 2].\n*   **Key establishment**: Both parties securely exchange and generate unique session keys using asymmetric encryption, which are then used for faster symmetric encryption of the actual data transfer [1, 2].\n\nThe handshake process, though complex, generally involves the client sending a \"ClientHello\" message with its supported TLS versions and cipher suites. The server responds with a \"ServerHello,\" choosing the strongest mutually supported options and sending its digital certificate for verification. After the client validates the certificate, they securely exchange key material to compute shared \"session keys.\" Finally, both sides confirm the handshake's integrity before encrypted data transmission begins [1, 2]. TLS 1.3 has streamlined this process, reducing the number of round trips and improving security by mandating perfect forward secrecy [1, 2].\n\nHTTPS (Hypertext Transfer Protocol Secure) relies fundamentally on the TLS handshake because it provides the necessary security mechanisms for safe online interactions [2]:\n*   **Authentication**: The handshake verifies the server's identity through digital certificates, ensuring that the client is connecting to the authentic website and not an impersonator [1, 2].\n*   **Encryption**: It establishes an encrypted link, meaning all data exchanged between the client and server is scrambled and unreadable to third parties [1, 2].\n*   **Data Integrity**: The process ensures that data cannot be tampered with or modified during transmission without detection [1, 2].\n\nWithout the TLS handshake, sensitive information exchanged over the internet via HTTPS would be exposed and vulnerable to eavesdropping, tampering, and man-in-the-middle attacks, undermining the trust and security essential for online activities like e-commerce, banking, and private communications [1, 2].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://www.paloaltonetworks.com/cyberpedia/what-is-a-tls-handshake",
+        "title": "What Is the TLS Handshake? Process, Steps, and Best Practices - Palo Alto Networks",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://www.ssl.com/article/ssl-tls-handshake-ensuring-secure-online-interactions",
+        "title": "SSL/TLS Handshake: Ensuring Secure Online Interactions - SSL.com",
+        "step": 3
+      }
+    ],
+    "steps": 4,
+    "reached_limit": false,
+    "duration_s": 32.0,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "TLS handshake"
+        },
+        "ok": true,
+        "duration_ms": 1359,
+        "error": null,
+        "result_chars": 6856
+      },
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "why HTTPS needs TLS handshake"
+        },
+        "ok": true,
+        "duration_ms": 1327,
+        "error": null,
+        "result_chars": 7077
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake"
+        },
+        "ok": false,
+        "duration_ms": 765,
+        "error": "Could not fetch page: HTTPStatusError: Client error '403 Forbidden' for url 'https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403",
+        "result_chars": 252
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.paloaltonetworks.com/cyberpedia/what-is-a-tls-handshake"
+        },
+        "ok": true,
+        "duration_ms": 1781,
+        "error": null,
+        "result_chars": 6157
+      },
+      {
+        "step": 3,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.ssl.com/article/ssl-tls-handshake-ensuring-secure-online-interactions"
+        },
+        "ok": true,
+        "duration_ms": 2436,
+        "error": null,
+        "result_chars": 6190
+      },
+      {
+        "step": 4,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 2687
+      }
+    ]
+  },
+  "q08": {
+    "id": "q08",
+    "question": "When should you choose SQLite over PostgreSQL for production?",
+    "answer": "You should choose SQLite over PostgreSQL for production in the following scenarios:\n\n*   **Embedded or Local Databases** When your application requires a local, embedded database, such as for desktop applications, mobile apps, command-line interface (CLI) tools, or edge and IoT devices. SQLite is a library linked directly into your application, with the entire database residing in a single file [1, 2].\n*   **Zero Deployment and Configuration** If you need a database with minimal setup and no server process to manage, SQLite is ideal. There's no need for installation, configuration files, or user accounts [1, 2].\n*   **Low Concurrency and Read-Heavy Workloads** SQLite performs well in applications with low concurrency and is efficient for read-heavy operations. It allows many concurrent readers but only one writer at a time, making it less suitable for applications with heavy concurrent writes [1, 2].\n*   **Portability** SQLite databases are highly portable, essentially functioning as a single file that can be easily copied, inspected, version-controlled, and restored. This makes it suitable for tools that need portable data [1, 2].\n*   **Simplicity and Small Datasets** For applications prioritizing simplicity, small datasets, or local caches and embedded configuration storage, SQLite's straightforward nature is beneficial. It has a minimal type system and less strict schema enforcement, which can be advantageous in certain contexts [1, 2].\n*   **Development Environments** Many teams use SQLite for local development due to its ease of setup, while switching to PostgreSQL for the production environment [2].\n\nIn essence, SQLite is like a compact toolkit—small, fast, and self-contained—whereas PostgreSQL is a powerful, complex system designed for large projects with high scalability, reliability, and advanced feature requirements [1].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://dev.to/lovestaco/postgresql-vs-sqlite-dive-into-two-very-different-databases-5a90",
+        "title": "PostgreSQL vs SQLite: Dive into Two Very Different Databases - DEV Community",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://www.tinybird.co/blog/postgres-vs-sqlite",
+        "title": "Postgres vs SQLite | Tinybird",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 13.1,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "SQLite vs PostgreSQL production when to choose SQLite"
+        },
+        "ok": true,
+        "duration_ms": 1781,
+        "error": null,
+        "result_chars": 6986
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://dev.to/lovestaco/postgresql-vs-sqlite-dive-into-two-very-different-databases-5a90"
+        },
+        "ok": true,
+        "duration_ms": 1436,
+        "error": null,
+        "result_chars": 6269
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.tinybird.co/blog/postgres-vs-sqlite"
+        },
+        "ok": true,
+        "duration_ms": 2500,
+        "error": null,
+        "result_chars": 6186
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 1862
+      }
+    ]
+  },
+  "q09": {
+    "id": "q09",
+    "question": "What are the trade-offs between Kafka and RabbitMQ?",
+    "answer": "Kafka and RabbitMQ are both message queuing systems, but they are designed for different use cases, leading to distinct trade-offs [1, 2].\n\n**Kafka** is primarily an event streaming platform, acting as a distributed append-only log [1, 2].\n*   **Advantages**:\n    *   **High throughput and scalability**: Designed for high-volume data streams, capable of handling millions of messages per second due to its partitioned design and sequential I/O [1, 2].\n    *   **Durable message retention and replay**: Messages are stored on disk for a configurable period, allowing consumers to reread or replay data, which is essential for event sourcing, analytics, and audit logs [1, 2].\n    *   **Multiple independent consumer groups**: Multiple consumer groups can read the same topic independently without interfering with each other [1].\n    *   **Ordered delivery within a partition**: Guarantees message order within a single partition, useful for maintaining order for specific entities [1].\n    *   **Stream processing**: Native support for stream processing through Kafka Streams or Flink [1].\n*   **Disadvantages**:\n    *   **Higher operational complexity**: Involves managing partitions, consumer group rebalancing, and offset tracking [1].\n    *   **No built-in complex routing logic**: Routing is simpler, primarily topic-based, and complex filtering often requires consumer-side processing [1].\n    *   **No message priority**: Treats all messages equally [2].\n    *   **Messages cannot be selectively deleted**: Messages are retained based on retention policies rather than individual acknowledgment [1].\n    *   **Pull model**: Consumers pull messages at their own pace, giving them control over throughput but adding a polling cycle [1].\n\n**RabbitMQ** is a general-purpose message broker, prioritizing end-to-end message delivery [1, 2].\n*   **Advantages**:\n    *   **Rich and flexible routing**: Offers various exchange types (direct, fanout, topic, headers) for complex message routing [1].\n    *   **Lower per-message latency (for small volumes)**: Uses a push model where the broker pushes messages to consumers as they arrive, which can result in lower latency for individual messages [1].\n    *   **Message priority**: Supports priority queues, allowing critical messages to be processed ahead of others [2].\n    *   **Simple operational model (for basic use cases)**: Can be less complex to operate for traditional message queuing patterns [1].\n    *   **Global ordering (with a single consumer)**: Guarantees ordering within a single queue if there's only one consumer [1].\n*   **Disadvantages**:\n    *   **Messages deleted after acknowledgment**: Once a message is consumed and acknowledged, it is removed from the queue, making replay difficult or impossible without workarounds [1, 2].\n    *   **Lower aggregate throughput than Kafka at scale**: While high, it generally doesn't match Kafka's throughput for massive data streams [1].\n    *   **No replay capability**: Lacks the ability to easily reprocess past messages [1].\n    *   **Competing consumers on a queue**: Multiple consumers on the same queue share messages in a round-robin fashion, but this doesn't allow multiple independent consumers to each receive a copy of every message without separate queues [1].\n    *   **Push model**: The broker pushes messages, which can be efficient for worker pools but gives consumers less control over their processing rate [1].\n\n**In summary**: RabbitMQ is generally preferred for task queues, background jobs, and RPC patterns where reliable message delivery and flexible routing are crucial, and messages are typically short-lived [1, 2]. Kafka excels in event streaming, real-time analytics, log aggregation, and scenarios requiring high throughput, durable message retention, and the ability to replay data [1, 2]. Some teams even choose to use both, with Kafka as an event backbone and RabbitMQ for the task queues triggered by those events [1].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://www.conduktor.io/glossary/kafka-vs-rabbitmq",
+        "title": "Kafka vs RabbitMQ: Streams vs Queues | Conduktor",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://aws.amazon.com/compare/the-difference-between-rabbitmq-and-kafka/",
+        "title": "aws.amazon.com",
+        "step": 3
+      }
+    ],
+    "steps": 4,
+    "reached_limit": false,
+    "duration_s": 31.1,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "Kafka vs RabbitMQ trade-offs"
+        },
+        "ok": true,
+        "duration_ms": 1609,
+        "error": null,
+        "result_chars": 6837
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://medium.com/@taycode/rabbitmq-vs-kafka-a-practical-guide-61b82c096cf7"
+        },
+        "ok": false,
+        "duration_ms": 718,
+        "error": "Could not fetch page: HTTPStatusError: Client error '403 Forbidden' for url 'https://medium.com/@taycode/rabbitmq-vs-kafka-a-practical-guide-61b82c096cf7'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403",
+        "result_chars": 257
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.conduktor.io/glossary/kafka-vs-rabbitmq"
+        },
+        "ok": true,
+        "duration_ms": 875,
+        "error": null,
+        "result_chars": 6169
+      },
+      {
+        "step": 3,
+        "action": "read_page",
+        "args": {
+          "url": "https://aws.amazon.com/compare/the-difference-between-rabbitmq-and-kafka/"
+        },
+        "ok": true,
+        "duration_ms": 1202,
+        "error": null,
+        "result_chars": 6173
+      },
+      {
+        "step": 4,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 3965
+      }
+    ]
+  },
+  "q10": {
+    "id": "q10",
+    "question": "What does Kubernetes provide that Docker Compose does not?",
+    "answer": "Kubernetes provides several features that Docker Compose does not, primarily due to their different intended use cases. Kubernetes is a production-grade container orchestrator designed for large-scale, distributed environments requiring high availability and complex management across multiple machines, while Docker Compose is suited for local development and single-host, multi-container applications [1, 2].\n\nKey features Kubernetes offers over Docker Compose include:\n\n*   **Orchestration and Scaling:** Kubernetes orchestrates containers across a cluster of multiple physical nodes, distributing container replicas to achieve horizontal scaling and fault tolerance. Docker Compose, in contrast, runs multi-container applications on a single host [1, 2].\n*   **High Availability and Self-Healing:** Kubernetes includes built-in capabilities for autoscaling, self-healing (recreating failed containers or rescheduling them on healthy nodes), and rolling updates to ensure applications remain accessible even if a node experiences issues. Docker Compose lacks these advanced features [1, 2].\n*   **Service Discovery and Load Balancing:** Kubernetes provides stable network identities and services for load balancing across containers within a cluster, facilitating communication in distributed systems. While Docker Compose handles basic networking, Kubernetes' networking model is more robust for production environments [1, 2].\n*   **Declarative Configuration and GitOps:** Kubernetes supports declarative configuration, where you define the desired state of your applications and resources, and the system continuously works to match that state, enabling GitOps workflows. Docker Compose uses YAML files for configuration but does not offer the same level of declarative management and drift detection [2].\n*   **Complexity and Production Readiness:** Kubernetes is designed for complex, production-level deployments, including multi-cloud and multi-tenant scenarios. It has a steeper learning curve due to its extensive feature set. Docker Compose is simpler to use and prioritize for local development and testing environments [1, 2].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://spacelift.io/blog/docker-compose-vs-kubernetes",
+        "title": "Docker Compose vs Kubernetes - Differences Explained",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://www.wiz.io/academy/container-security/kubernetes-and-docker",
+        "title": "Kubernetes vs Docker Explained: Container Orchestration Basics | Wiz",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 19.8,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "Kubernetes vs Docker Compose features differences"
+        },
+        "ok": true,
+        "duration_ms": 1140,
+        "error": null,
+        "result_chars": 6246
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://spacelift.io/blog/docker-compose-vs-kubernetes"
+        },
+        "ok": true,
+        "duration_ms": 1313,
+        "error": null,
+        "result_chars": 6153
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.wiz.io/academy/container-security/kubernetes-and-docker"
+        },
+        "ok": true,
+        "duration_ms": 4296,
+        "error": null,
+        "result_chars": 6162
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 2141
+      }
+    ]
+  },
+  "q11": {
+    "id": "q11",
+    "question": "When is SQL a better choice than NoSQL, and vice versa?",
+    "answer": "SQL databases are generally a better choice when dealing with structured, relational data where data consistency and integrity are paramount [1, 2]. They enforce a predefined schema with rows and columns, and relationships between tables are established through foreign keys [1, 3]. SQL databases are suitable for applications requiring complex queries and transactions with strong ACID (Atomicity, Consistency, Isolation, Durability) properties, such as financial systems or banking applications [2, 3]. While primarily scaled vertically by upgrading hardware, horizontal scaling is possible but often less supported [1, 2, 3]. SQL also benefits from a mature ecosystem with extensive community support [1, 3].\n\nNoSQL databases are a better choice when handling large volumes of unstructured, semi-structured, or rapidly changing data, and when flexibility in the data model is required [1, 2, 3]. They offer various data models like document, key-value, graph, or columnar, and have flexible schemas, making it easier to adapt to evolving data requirements [1, 2, 3]. NoSQL databases excel in horizontal scalability, allowing for easier distribution across multiple servers to handle increased workloads, making them ideal for modern cloud-based infrastructures and big data applications [1, 2, 3]. Use cases where NoSQL is preferred include real-time analytics, IoT, user analytics, personalization, ad tech, e-commerce, gaming, and social networks, where high performance and agility are critical [1, 3]. While some NoSQL databases can integrate ACID rules, they often prioritize availability and partition tolerance (CAP theorem) [3].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://www.coursera.org/articles/nosql-vs-sql",
+        "title": "NoSQL vs. SQL: The Differences Explained + When to Use Each | Coursera",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://www.splunk.com/en_us/blog/learn/sql-vs-nosql.html",
+        "title": "SQL vs. NoSQL Today: Databases, Differences & When To Use Which | Splunk",
+        "step": 2
+      },
+      {
+        "n": 3,
+        "url": "https://www.ibm.com/think/topics/sql-vs-nosql",
+        "title": "SQL vs. NoSQL Databases: What's the Difference? | IBM",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 21.2,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "SQL vs NoSQL when to use each"
+        },
+        "ok": true,
+        "duration_ms": 2953,
+        "error": null,
+        "result_chars": 6501
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.coursera.org/articles/nosql-vs-sql"
+        },
+        "ok": true,
+        "duration_ms": 1780,
+        "error": null,
+        "result_chars": 6139
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.splunk.com/en_us/blog/learn/sql-vs-nosql.html"
+        },
+        "ok": true,
+        "duration_ms": 1329,
+        "error": null,
+        "result_chars": 6175
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.ibm.com/think/topics/sql-vs-nosql"
+        },
+        "ok": true,
+        "duration_ms": 2562,
+        "error": null,
+        "result_chars": 6130
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 1639
+      }
+    ]
+  },
+  "q12": {
+    "id": "q12",
+    "question": "Why should HTTP APIs be idempotent? Give examples.",
+    "answer": "HTTP APIs should be idempotent to ensure reliability, consistency, and fault tolerance in web services. Idempotence means that performing the same API request multiple times will have the same effect as performing it only once, without causing unintended side effects beyond the initial operation [1, 2, 3]. This property is crucial in distributed systems where network issues, timeouts, or client-side retries can lead to duplicate requests [1, 3].\n\nKey reasons for idempotency:\n*   **Fault Tolerance:** It prevents undesirable outcomes like duplicate charges, multiple resource creations, or incorrect state changes when a client retries a request due to network failures or uncertainty about the request's initial success [1, 3].\n*   **Consistency:** It ensures that repeated operations on a server always lead to a predictable and consistent final state [1].\n*   **Efficiency:** Idempotent requests can be safely cached and replayed, which can reduce server load and improve response times [1].\n\n**Examples of Idempotent and Non-Idempotent HTTP Methods:**\n\nBy definition, certain HTTP methods are inherently idempotent, while others are not:\n\n**Idempotent HTTP Methods:**\n*   **`GET`**: Retrieving a resource multiple times will always return the current state of that resource without altering it on the server [1, 2, 3].\n    *   Example: `GET /users/123` will always fetch the details of user 123, regardless of how many times it's called.\n*   **`HEAD`**, **`OPTIONS`**, **`TRACE`**: These methods are also idempotent as they do not modify server-side resources [1].\n*   **`PUT`**: Used to update or replace a resource entirely. If the same `PUT` request is sent multiple times, the resource will be updated to the same state each time, having no additional effect after the first successful request [1, 2, 3].\n    *   Example: `PUT /products/456` with a specific product data payload. Repeating this request will ensure product 456 always reflects that exact data.\n*   **`DELETE`**: Deleting a resource multiple times has the same outcome as deleting it once. After the first successful deletion, subsequent `DELETE` requests for the same resource will find it already gone, even if the server's response changes (e.g., from `200 OK` to `404 Not Found`) [1, 2, 3].\n    *   Example: `DELETE /orders/789`. After the order is removed, repeating the `DELETE` request will not change the system's state further.\n\n**Non-Idempotent HTTP Methods:**\n*   **`POST`**: Typically used to create new resources. Sending the same `POST` request multiple times can lead to the creation of multiple identical resources or trigger repeated side effects [1, 2].\n    *   Example: `POST /add_row` to add a new row to a database. Repeating this request would add multiple rows [2]. Similarly, repeatedly submitting a `POST` request for user sign-up could create multiple accounts for the same user [1].\n*   **`PATCH`**: Used for partial updates to a resource. The result of a `PATCH` request can vary if the resource's state changes between requests. For instance, an operation like \"increment by X\" will continue to increment the value with each repeated request [1].\n    *   Example: `PATCH /shopping_cart/item/123` with a payload to increment the quantity of item 123. Repeating this request would continuously increase the item's quantity [1].\n\nTo make non-idempotent operations safer, developers often implement strategies such as using unique request identifiers (idempotency keys) or transactional mechanisms. For example, payment processors like Stripe use unique idempotency keys in request headers to ensure that duplicate requests for the same transaction are processed only once [1, 3].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://restfulapi.net/idempotent-rest-apis",
+        "title": "Idempotency - What is an Idempotent REST API?",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://developer.mozilla.org/en-US/docs/Glossary/Idempotent",
+        "title": "Idempotent - Glossary | MDN",
+        "step": 2
+      },
+      {
+        "n": 3,
+        "url": "https://computersciencesimplified.substack.com/p/idempotent-apis-and-safe-retries",
+        "title": "Idempotent APIs and safe retries - by Martin Joo",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 23.9,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "why HTTP APIs should be idempotent examples"
+        },
+        "ok": true,
+        "duration_ms": 2984,
+        "error": null,
+        "result_chars": 6923
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://restfulapi.net/idempotent-rest-apis"
+        },
+        "ok": true,
+        "duration_ms": 2875,
+        "error": null,
+        "result_chars": 5606
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/Idempotent"
+        },
+        "ok": true,
+        "duration_ms": 1061,
+        "error": null,
+        "result_chars": 2540
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://computersciencesimplified.substack.com/p/idempotent-apis-and-safe-retries"
+        },
+        "ok": true,
+        "duration_ms": 1469,
+        "error": null,
+        "result_chars": 6300
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 3682
+      }
+    ]
+  },
+  "q13": {
+    "id": "q13",
+    "question": "What are the main benefits and limitations of serverless functions?",
+    "answer": "Serverless functions offer several benefits, primarily by abstracting away server management, allowing developers to focus on code rather than infrastructure [1, 2].\n\nKey benefits include:\n*   **Cost-effectiveness:** You only pay for the compute time consumed during execution, eliminating costs for idle server capacity [1, 2].\n*   **Automatic scalability:** Serverless applications automatically adjust computing resources in real-time based on demand, scaling from zero to thousands of instances within seconds without manual intervention [1, 2].\n*   **Faster deployment and innovation:** Without infrastructure construction to manage, applications can be deployed rapidly, accelerating innovation and allowing for flexibility in releases [1].\n*   **Simplified operations:** Cloud providers handle provisioning, scaling, and server maintenance, reducing operational overhead [1, 2].\n*   **Event-driven architecture:** Functions execute in response to specific events (e.g., HTTP requests, database changes), making them suitable for event-driven applications [1, 2].\n*   **Improved observability:** Breaking applications into smaller, independent functions can lead to better observability and easier changes or fixes [1].\n\nHowever, serverless functions also come with limitations:\n*   **Cold starts:** The initial invocation of a function after a period of inactivity can experience latency as the platform initializes resources [1, 2].\n*   **Limited control:** Developers have less control over the underlying infrastructure and may be impacted by provider-side changes [1].\n*   **Execution time limits:** Serverless functions are designed for short, reactive tasks and often have execution time limits, making them less suitable for long-running processes [1, 2].\n*   **Debugging complexity:** Troubleshooting can be challenging due to functions executing in ephemeral, distributed environments without persistent state, which can make it difficult to replicate problems [1].\n*   **State management:** Functions are typically stateless, requiring different strategies for managing persistent data or state across invocations [2].\n*   **Vendor lock-in:** Applications can become tightly coupled to a specific cloud provider's serverless services, potentially complicating migration to other platforms [2].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://newrelic.com/blog/infrastructure-monitoring/what-is-serverless-architecture",
+        "title": "Serverless Architecture: Key Benefits and Limitations | New Relic",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://encore.dev/articles/serverless-functions",
+        "title": "Serverless Functions: What are they and when to use them – Encore",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 32.4,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "benefits and limitations of serverless functions"
+        },
+        "ok": true,
+        "duration_ms": 1421,
+        "error": null,
+        "result_chars": 6330
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://newrelic.com/blog/infrastructure-monitoring/what-is-serverless-architecture"
+        },
+        "ok": true,
+        "duration_ms": 1360,
+        "error": null,
+        "result_chars": 6177
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://medium.com/@dave-patten/serverless-architecture-pros-cons-and-use-cases-4a0769744ca2"
+        },
+        "ok": false,
+        "duration_ms": 906,
+        "error": "Could not fetch page: HTTPStatusError: Client error '403 Forbidden' for url 'https://medium.com/@dave-patten/serverless-architecture-pros-cons-and-use-cases-4a0769744ca2'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403",
+        "result_chars": 273
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://encore.dev/articles/serverless-functions"
+        },
+        "ok": true,
+        "duration_ms": 2750,
+        "error": null,
+        "result_chars": 3426
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 2310
+      }
+    ]
+  },
+  "q14": {
+    "id": "q14",
+    "question": "How does DNS resolution work, step by step?",
+    "answer": "DNS resolution is the process of translating human-readable domain names (like example.com) into machine-readable IP addresses (like 192.0.2.1), which computers use to locate servers and access websites. This multi-step process typically unfolds as follows [1, 2]:\n\n1.  **Query Initiation and Local Cache Check**\n    When you enter a domain name into your browser, your device first checks its local DNS cache (within the browser and then the operating system) to see if it already has the corresponding IP address. If found, the process stops here, and the IP address is used to connect [1, 2].\n\n2.  **Recursive Resolver Contact**\n    If the IP address is not found in the local cache, your device sends a query to a recursive DNS resolver, often operated by your Internet Service Provider (ISP) or a public DNS provider like Google DNS or Cloudflare DNS. The recursive resolver is responsible for finding the answer to the query [1, 2].\n\n3.  **Root Nameserver Query**\n    If the recursive resolver doesn't have the answer cached, it contacts one of the internet's root nameservers. These servers don't store specific domain IP addresses but know where to find the Top-Level Domain (TLD) nameservers [1, 2].\n\n4.  **TLD Nameserver Referral**\n    The root nameserver directs the recursive resolver to the appropriate TLD nameserver based on the domain's extension (e.g., `.com`, `.org`, `.net`). For instance, for `example.com`, the root nameserver would refer the resolver to the `.com` TLD nameserver [1, 2].\n\n5.  **Authoritative Nameserver Resolution**\n    The TLD nameserver then refers the recursive resolver to the authoritative nameserver for the specific domain (`example.com`). This server holds the actual DNS records, including the IP address for the domain [1, 2].\n\n6.  **Final Answer Delivery and Connection**\n    The authoritative nameserver provides the IP address to the recursive resolver. The recursive resolver then returns this IP address to your device and caches it for future requests. Your browser then uses this IP address to establish a connection with the web server and load the website [1, 2].\n\nThroughout this process, various caching mechanisms (application, OS, and recursive resolver caches) are utilized to store query results, minimizing redundant lookups and speeding up responses for users [1].\n\n**Sources:**\n[1] https://www.freecodecamp.org/news/how-dns-works-the-internets-address-book\n[2] https://newrelic.com/blog/apm/dns-resolution-a-comprehensive-guide",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://www.freecodecamp.org/news/how-dns-works-the-internets-address-book",
+        "title": "How DNS Works: A Guide to Understanding the Internet's Address Book",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://newrelic.com/blog/apm/dns-resolution-a-comprehensive-guide",
+        "title": "What Is DNS Resolution? How It Works & Best Practices | New Relic",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 22.0,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "how does DNS resolution work step by step"
+        },
+        "ok": true,
+        "duration_ms": 1922,
+        "error": null,
+        "result_chars": 7322
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.freecodecamp.org/news/how-dns-works-the-internets-address-book"
+        },
+        "ok": true,
+        "duration_ms": 1469,
+        "error": null,
+        "result_chars": 6180
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://newrelic.com/blog/apm/dns-resolution-a-comprehensive-guide"
+        },
+        "ok": true,
+        "duration_ms": 2360,
+        "error": null,
+        "result_chars": 6153
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.geeksforg eeks.org/computer-networks/address-resolution-in-dns-domain-name-server"
+        },
+        "ok": false,
+        "duration_ms": 734,
+        "error": "Could not fetch page: ConnectError: [Errno 11001] getaddrinfo failed",
+        "result_chars": 81
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 2494
+      }
+    ]
+  },
+  "q15": {
+    "id": "q15",
+    "question": "What are the pros and cons of WebSockets versus Server-Sent Events?",
+    "answer": "WebSockets and Server-Sent Events (SSE) are both technologies used for real-time communication between a client and a server, but they differ in their capabilities and ideal use cases. Neither is inherently better; the choice depends on the specific application requirements [1].\n\nHere's a breakdown of their pros and cons:\n\n**WebSockets**\n\n**Pros:**\n*   **Bidirectional Communication:** WebSockets enable full-duplex, two-way communication, meaning both the client and server can send and receive data independently at any time. This makes them ideal for interactive applications like chat, multiplayer games, and IoT control panels [1, 2, 3].\n*   **Efficiency:** After the initial HTTP handshake, WebSockets maintain an open TCP connection, reducing overhead compared to repeated HTTP requests. This allows for faster data transfer [3].\n*   **Versatility:** WebSockets can transmit both binary data and UTF-8 encoded text [1].\n*   **Extensibility:** While more complex to set up, WebSockets offer a stable and extensible application setting, suitable for complex projects that might evolve [1].\n*   **Real-time applications:** They are designed for applications requiring continuous, low-latency data exchange [3].\n\n**Cons:**\n*   **Complexity:** WebSockets are generally more complex and demanding to set up compared to SSE, requiring more upfront work [1].\n*   **Scaling Challenges:** Scaling WebSocket applications can be harder, as it often requires specific WebSocket support in infrastructure components like load balancers and proxies [2].\n*   **No Built-in Reconnect:** Unlike SSE, WebSockets typically require manual implementation for automatic reconnection if the connection drops [2].\n*   **Limited Caching:** WebSockets, unlike HTTP, do not provide intermediary or edge caching [3].\n*   **Browser Compatibility:** While widely supported, some older browsers might not support WebSockets natively [1].\n\n**Server-Sent Events (SSE)**\n\n**Pros:**\n*   **Unidirectional (Server to Client):** SSE is optimized for one-way data flow from the server to the client, making it perfect for applications that primarily push updates, such as live notifications, news tickers, and stock price updates [1, 2].\n*   **Simplicity:** SSE is simpler and faster to set up than WebSockets, leveraging standard HTTP connections [1, 2].\n*   **Automatic Reconnection:** SSE has built-in automatic reconnection handling, which is beneficial for mobile networks or flaky connections [1, 2].\n*   **Lightweight:** It's lightweight for one-way data streaming and works well with existing HTTP infrastructure [2].\n*   **Event-driven:** SSE supports event IDs and the ability to send arbitrary events [1].\n\n**Cons:**\n*   **Limited to Server-to-Client Communication:** The primary drawback is its unidirectional nature; the client cannot send data back to the server using SSE [1, 2].\n*   **Text-based (UTF-8 Only):** SSE is limited to transmitting UTF-8 encoded text data; it cannot handle binary data [1].\n*   **Connection Limit:** SSE can suffer from a limitation on the maximum number of open connections (typically six per browser), which can be an issue when multiple tabs are open [1].\n*   **Browser Compatibility:** Some older browsers or HTTP/2+ might not fully support SSE, although polyfills can simulate the functionality [1, 2].\n*   **Less Extensible:** SSE is not as extensible as WebSockets; if application requirements change to necessitate bidirectional communication, refactoring to WebSockets might be required [1].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://www.telerik.com/blogs/websockets-vs-server-sent-events",
+        "title": "WebSockets vs Server-Sent Events",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://dev.to/haraf/server-sent-events-sse-vs-websockets-vs-long-polling-whats-best-in-2025-5ep8",
+        "title": "🔄 Server-Sent Events (SSE) vs WebSockets vs Long Polling: What’s Best in 2025? - DEV Community",
+        "step": 2
+      },
+      {
+        "n": 3,
+        "url": "https://hackernoon.com/pros-and-cons-of-websocket-and-eventsource",
+        "title": "Pros and Cons of WebSocket and EventSource | HackerNoon",
+        "step": 2
+      }
+    ],
+    "steps": 3,
+    "reached_limit": false,
+    "duration_s": 22.4,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "WebSockets vs Server-Sent Events pros cons"
+        },
+        "ok": true,
+        "duration_ms": 3639,
+        "error": null,
+        "result_chars": 7480
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://www.telerik.com/blogs/websockets-vs-server-sent-events"
+        },
+        "ok": true,
+        "duration_ms": 1984,
+        "error": null,
+        "result_chars": 5492
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://dev.to/haraf/server-sent-events-sse-vs-websockets-vs-long-polling-whats-best-in-2025-5ep8"
+        },
+        "ok": true,
+        "duration_ms": 1765,
+        "error": null,
+        "result_chars": 4860
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://hackernoon.com/pros-and-cons-of-websocket-and-eventsource"
+        },
+        "ok": true,
+        "duration_ms": 2045,
+        "error": null,
+        "result_chars": 5959
+      },
+      {
+        "step": 3,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 3513
+      }
+    ]
+  },
+  "q16": {
+    "id": "q16",
+    "question": "What is Redis persistence, and why is it often limited or disabled?",
+    "answer": "Redis persistence refers to mechanisms that allow Redis to save data from its in-memory dataset to disk, ensuring data is not lost in case of a server restart or failure [1, 2]. Redis offers two primary persistence options:\n\n1.  **RDB (Redis Database) Persistence**: This method performs point-in-time snapshots of the dataset at specified intervals. RDB files are compact, suitable for backups, and allow for faster restarts with large datasets. However, there's a risk of data loss between snapshots [1, 2].\n2.  **AOF (Append Only File) Persistence**: AOF logs every write operation received by the server, which can then be replayed at startup to reconstruct the dataset. AOF offers greater durability, minimizing data loss to as little as one second with the default `fsync everysec` policy, but AOF files are generally larger than RDB files and can lead to slower restarts [1, 2].\n3.  **Hybrid Persistence**: It's also possible to combine both RDB and AOF, offering a balance between fast recovery (RDB) and high durability (AOF) [1, 2].\n4.  **No Persistence**: Persistence can be completely disabled [1].\n\nRedis persistence is often limited or disabled for several reasons:\n\n*   **Performance and Low Latency**: Redis was originally designed as a fast, in-memory caching solution [3]. Persisting data to disk involves I/O operations, which can introduce latency and impact performance. For applications where Redis is used purely as a cache and data can be easily regenerated or is stored elsewhere, the overhead of persistence might be undesirable [1, 3].\n*   **Caching Scenarios**: In caching use cases, some data loss might be acceptable if the primary goal is speed and reducing load on a backend database. Disabling persistence can maximize Redis's performance for these scenarios [1, 3].\n*   **Resource Overhead**: Both RDB and AOF have resource implications. RDB requires forking a child process to create snapshots, which can be time-consuming and consume significant CPU and memory, especially with large datasets, potentially pausing client operations for milliseconds or even seconds [1, 2, 3]. AOF files can be larger and also involve continuous disk writes [1, 2].\n*   **Durability Trade-offs**: While persistence improves durability, it's a trade-off. RDB, for example, risks losing data between snapshots [1, 2]. AOF, while more durable, can still lose a few seconds of data in certain failure scenarios [2]. For applications that can tolerate a certain degree of data loss for performance gains, limiting persistence might be a conscious decision.\n*   **Managed Services**: In managed Redis services, persistence features are primarily intended for automatic data restoration to the *same* cache instance after data loss, not for general data backup or point-in-time recovery. Users might opt for other export features for true backups across caches [4].",
+    "sources": [
+      {
+        "n": 1,
+        "url": "https://redis.io/docs/latest/operate/oss_and_stack/management/persistence",
+        "title": "Redis persistence | Docs",
+        "step": 2
+      },
+      {
+        "n": 2,
+        "url": "https://redis.io/tutorials/operate/redis-at-scale/persistence-and-durability",
+        "title": "Redis Persistence: RDB vs AOF Configuration and Recovery Guide",
+        "step": 3
+      },
+      {
+        "n": 3,
+        "url": "https://aerospike.com/blog/redis-persistence",
+        "title": "Does Redis have persistence? Understanding Redis data persistence approaches | Aerospike",
+        "step": 5
+      },
+      {
+        "n": 4,
+        "url": "https://learn.microsoft.com/en-us/azure/redis/how-to-persistence",
+        "title": "Configure data persistence - Azure Managed Redis | Microsoft Learn",
+        "step": 6
+      }
+    ],
+    "steps": 7,
+    "reached_limit": false,
+    "duration_s": 49.5,
+    "trace": [
+      {
+        "step": 1,
+        "action": "search",
+        "args": {
+          "query": "Redis persistence"
+        },
+        "ok": true,
+        "duration_ms": 1578,
+        "error": null,
+        "result_chars": 6868
+      },
+      {
+        "step": 2,
+        "action": "read_page",
+        "args": {
+          "url": "https://redis.io/docs/latest/operate/oss_and_stack/management/persistence"
+        },
+        "ok": true,
+        "duration_ms": 1094,
+        "error": null,
+        "result_chars": 6178
+      },
+      {
+        "step": 3,
+        "action": "read_page",
+        "args": {
+          "url": "https://redis.io/tutorials/operate/redis-at-scale/persistence-and-durability"
+        },
+        "ok": true,
+        "duration_ms": 1562,
+        "error": null,
+        "result_chars": 6183
+      },
+      {
+        "step": 4,
+        "action": "read_page",
+        "args": {
+          "urls": [
+            "https://aerospike.com/blog/redis-persistence",
+            "https://learn.microsoft.com/en-us/azure/redis/how-to-persistence"
+          ]
+        },
+        "ok": false,
+        "duration_ms": 0,
+        "error": "TypeError: read_page() got an unexpected keyword argument 'urls'",
+        "result_chars": 77
+      },
+      {
+        "step": 5,
+        "action": "read_page",
+        "args": {
+          "url": "https://aerospike.com/blog/redis-persistence"
+        },
+        "ok": true,
+        "duration_ms": 1780,
+        "error": null,
+        "result_chars": 6160
+      },
+      {
+        "step": 6,
+        "action": "read_page",
+        "args": {
+          "url": "https://learn.microsoft.com/en-us/azure/redis/how-to-persistence"
+        },
+        "ok": true,
+        "duration_ms": 1250,
+        "error": null,
+        "result_chars": 6171
+      },
+      {
+        "step": 7,
+        "action": "answer",
+        "args": {},
+        "ok": true,
+        "duration_ms": 0,
+        "error": null,
+        "result_chars": 2876
+      }
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 import os
+import re
 import time
 
 from dotenv import load_dotenv
@@ -23,10 +24,26 @@ MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 RETRYABLE = {429, 500, 503, 504}  # temporary errors worth retrying
 MAX_ATTEMPTS = 5
 
+QUOTA_DELAY_RE = re.compile(r"retry in (\d+)h")
+
+MIN_INTERVAL = 7.0  # seconds between calls: the free tier rejects bursts (~10+ RPM)
+_last_call = 0.0
+
+
+def _daily_quota_hours(e) -> int:
+    """Hours until a daily quota resets, or 0 if this isn't a daily-quota error."""
+    match = QUOTA_DELAY_RE.search(str(e))
+    return int(match.group(1)) if match else 0
+
 
 def generate(**kwargs):
-    """Call Gemini, retrying temporary errors with increasing waits."""
+    """Call Gemini, pacing requests and retrying temporary errors."""
+    global _last_call
     for attempt in range(MAX_ATTEMPTS):
+        gap = time.monotonic() - _last_call
+        if gap < MIN_INTERVAL:
+            time.sleep(MIN_INTERVAL - gap)
+        _last_call = time.monotonic()
         try:
             response = client.models.generate_content(**kwargs)
             _log_usage(response)
@@ -35,6 +52,13 @@ def generate(**kwargs):
             is_last = attempt == MAX_ATTEMPTS - 1
             if e.code not in RETRYABLE or is_last:
                 raise  # not temporary, or out of attempts
+            if e.code == 429:
+                hours = _daily_quota_hours(e)
+                if hours:
+                    logger.error(
+                        "daily quota exhausted, resets in ~%sh — not retrying", hours
+                    )
+                    raise
             wait = 2 ** attempt  # 1s, 2s, 4s, 8s
             logger.warning(
                 "Gemini error %s, retrying in %ss (attempt %s/%s)",

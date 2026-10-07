@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "questions": [
+    {
+      "id": "q01",
+      "question": "What are the pros and cons of using Redis versus PostgreSQL for session storage in a web application?",
+      "reference": [
+        "Redis stores sessions in memory, giving sub-millisecond latency and high throughput",
+        "Redis has built-in TTL/expiry, natural for temporary session data",
+        "Redis costs grow with RAM and it is less durable by default (persistence is optional)",
+        "PostgreSQL persists to disk and offers ACID durability and data integrity",
+        "PostgreSQL is slower for high-velocity session reads/writes than an in-memory store",
+        "Running sessions in PostgreSQL can consolidate infrastructure and avoid a extra cache layer",
+        "A common conclusion: Redis for speed/transient data, PostgreSQL when durability/simplicity of one store matters"
+      ]
+    },
+    {
+      "id": "q02",
+      "question": "What are the main differences between Docker containers and virtual machines?",
+      "reference": [
+        "VMs virtualize hardware via a hypervisor; each VM runs its own full guest OS",
+        "Containers share the host OS kernel and isolate only the process (namespaces/cgroups)",
+        "Containers are lighter, start in seconds, and images are MBs rather than GBs",
+        "VMs provide stronger isolation; containers have higher density on one host",
+        "Containers package the app plus dependencies for consistent environments"
+      ]
+    },
+    {
+      "id": "q03",
+      "question": "What is database connection pooling and why is it used?",
+      "reference": [
+        "A pool reuses existing open connections instead of opening/closing one per request",
+        "Opening connections costs TCP handshake + authentication time",
+        "The pool caps the number of concurrent connections, protecting the database from overload",
+        "Common tools/libraries: PgBouncer, HikariCP, SQLAlchemy pool",
+        "Trade-offs: stale connections, pool size tuning, and settings shared across clients"
+      ]
+    },
+    {
+      "id": "q04",
+      "question": "What is the N+1 query problem and how do you fix it?",
+      "reference": [
+        "It happens when you fetch a list (1 query) then run a separate query per row (N queries)",
+        "Often caused by lazy loading in ORMs",
+        "Result: N+1 round trips and badly degraded performance",
+        "Fixes: JOINs, eager loading (includes/prefetch_related), or one batched query with IN",
+        "It is a performance/latency problem, not a correctness problem"
+      ]
+    },
+    {
+      "id": "q05",
+      "question": "Compare REST and GraphQL. When would you choose each?",
+      "reference": [
+        "REST uses multiple endpoints with fixed response shapes; GraphQL uses a single endpoint with client-specified queries",
+        "GraphQL avoids over-fetching/under-fetching when clients need varied data",
+        "REST responses cache easily (HTTP semantics); GraphQL caching is harder",
+        "GraphQL suits complex, deeply related data and many client types (e.g. mobile)",
+        "GraphQL adds complexity and risks like query-depth attacks; REST is simpler for straightforward CRUD"
+      ]
+    },
+    {
+      "id": "q06",
+      "question": "What problem does a CDN solve, and what are its limitations?",
+      "reference": [
+        "A CDN caches content at edge servers close to users, reducing latency",
+        "It offloads traffic and bandwidth from the origin server",
+        "Best for static assets (images, CSS, video, static files)",
+        "Limitation: dynamic or personalized content is harder to cache; cache invalidation is tricky",
+        "Limitation: it does not fix slow application code or database bottlenecks"
+      ]
+    },
+    {
+      "id": "q07",
+      "question": "What is the TLS handshake and why does HTTPS need it?",
+      "reference": [
+        "The handshake establishes an encrypted channel before data is sent",
+        "The server proves its identity with a certificate signed by a trusted CA",
+        "The parties authenticate and exchange/session keys to derive a shared symmetric key",
+        "It prevents eavesdropping and tampering of the traffic",
+        "HTTPS is simply HTTP carried over TLS"
+      ]
+    },
+    {
+      "id": "q08",
+      "question": "When should you choose SQLite over PostgreSQL for production?",
+      "reference": [
+        "SQLite is embedded/serverless: a single file, no database server process",
+        "Good fit for read-heavy, low-write, single-node, local/edge, or embedded apps",
+        "Limitation: effectively a single writer, so poor concurrent-write throughput",
+        "Limitation: no network access, so multiple hosts/servers cannot share it",
+        "PostgreSQL is the better choice for multi-user, multi-server, high-concurrency workloads"
+      ]
+    },
+    {
+      "id": "q09",
+      "question": "What are the trade-offs between Kafka and RabbitMQ?",
+      "reference": [
+        "Kafka is a distributed append-only log with high throughput and message retention/replay",
+        "Kafka suits event streaming, logs, and pipelines where consumers read at their own pace",
+        "RabbitMQ is a traditional broker with per-message acknowledgements and flexible routing",
+        "RabbitMQ suits task queues and low-latency message delivery",
+        "Kafka generally has higher throughput but more operational complexity"
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "What does Kubernetes provide that Docker Compose does not?",
+      "reference": [
+        "Kubernetes orchestrates containers across multiple machines; Compose is single-host",
+        "Kubernetes self-heals: restarts/reschedules failed containers",
+        "Kubernetes supports rolling/zero-downtime deploys and autoscaling",
+        "Kubernetes provides service discovery and load balancing between services",
+        "Compose is simpler and fine for development/small deployments; Kubernetes adds significant complexity"
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "When is SQL a better choice than NoSQL, and vice versa?",
+      "reference": [
+        "SQL fits structured/relational data with a stable schema and relations to join",
+        "SQL/relational databases give ACID transactions and strong consistency",
+        "NoSQL (document, key-value, column, graph) fits flexible or semi-structured schemas",
+        "NoSQL often scales horizontally across many machines more easily",
+        "Choice depends on query patterns, consistency needs, and scale — not a universal winner"
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "Why should HTTP APIs be idempotent? Give examples.",
+      "reference": [
+        "Idempotent = performing the same request multiple times has the same effect as once",
+        "It makes retries safe after timeouts or network failures",
+        "GET, PUT, DELETE are idempotent; POST is not by default",
+        "Prevents duplicate side effects such as double-charging a card",
+        "Non-idempotent operations can use idempotency keys to deduplicate retries"
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "What are the main benefits and limitations of serverless functions?",
+      "reference": [
+        "Benefits: no server management, automatic scaling, pay-per-invocation pricing",
+        "Provider handles availability/infrastructure maintenance",
+        "Limitation: cold starts add latency",
+        "Limitation: execution time limits and vendor lock-in",
+        "Limitation: stateless by design — state must live elsewhere (database/storage); debugging is harder"
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "How does DNS resolution work, step by step?",
+      "reference": [
+        "The browser/OS checks its local DNS cache first",
+        "If uncached, a recursive resolver queries on the client's behalf",
+        "The resolver walks the hierarchy: root server, then TLD server, then the domain's authoritative nameserver",
+        "The answer (A/AAAA address, possibly via CNAME chain) is returned to the client",
+        "Results are cached with a TTL to avoid repeat lookups"
+      ]
+    },
+    {
+      "id": "q15",
+      "question": "What are the pros and cons of WebSockets versus Server-Sent Events?",
+      "reference": [
+        "WebSockets are full-duplex: both sides send messages over one persistent connection",
+        "SSE is one-way: server pushes events to the client over plain HTTP",
+        "SSE is simpler, auto-reconnects, and works through standard HTTP infrastructure, but is text-only",
+        "WebSockets fit bidirectional use cases (chat, gaming, live collaboration)",
+        "Both require managing connection lifecycle, and the choice depends on whether the client needs to send data"
+      ]
+    },
+    {
+      "id": "q16",
+      "question": "What is Redis persistence, and why is it often limited or disabled?",
+      "reference": [
+        "Redis persistence options: RDB point-in-time snapshots and AOF append-only log of writes",
+        "Persistence adds latency and background I/O overhead",
+        "When Redis is only a cache or disposable session store, data can be rebuilt, so durability is unneeded",
+        "Disabling or loosening persistence buys speed",
+        "It is a durability-versus-performance trade-off, not a universal setting"
+      ]
+    }
+  ]
+}

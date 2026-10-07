@@ -36,5 +36,5 @@ def _configure() -> None:
     root.addHandler(file_handler)
 
     # Third-party HTTP chatter drowns out the agent's own trail
-    for noisy in ("httpx", "httpcore", "urllib3", "google"):
+    for noisy in ("httpx", "httpcore", "urllib3", "google", "google_genai"):
         logging.getLogger(noisy).setLevel(logging.WARNING)

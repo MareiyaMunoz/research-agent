@@ -1,0 +1,61 @@
+{
+  "summary": {
+    "tag": "v2",
+    "questions": 3,
+    "scored": 3,
+    "accuracy": 91,
+    "pass_rate_pct": 100.0,
+    "citation_valid_pct": 100.0,
+    "judge_errors": 0,
+    "hit_step_limit": 0,
+    "avg_steps": 3.7,
+    "avg_sources": 3
+  },
+  "rows": [
+    {
+      "id": "q02",
+      "question": "What are the main differences between Docker containers and virtual machines?",
+      "score": 95,
+      "missing_points": [],
+      "errors": [],
+      "judge_error": null,
+      "orphans": [],
+      "uncited": [],
+      "steps": 3,
+      "reached_limit": false,
+      "sources": 3,
+      "duration_s": 19.8
+    },
+    {
+      "id": "q03",
+      "question": "What is database connection pooling and why is it used?",
+      "score": 80,
+      "missing_points": [
+        "Common tools/libraries: HikariCP, SQLAlchemy pool",
+        "Trade-offs: stale connections, and settings shared across clients"
+      ],
+      "errors": [],
+      "judge_error": null,
+      "orphans": [],
+      "uncited": [],
+      "steps": 4,
+      "reached_limit": false,
+      "sources": 3,
+      "duration_s": 27.4
+    },
+    {
+      "id": "q08",
+      "question": "When should you choose SQLite over PostgreSQL for production?",
+      "score": 98,
+      "missing_points": [],
+      "errors": [],
+      "judge_error": null,
+      "orphans": [],
+      "uncited": [],
+      "steps": 4,
+      "reached_limit": false,
+      "sources": 3,
+      "duration_s": 36.7
+    }
+  ]
+}
