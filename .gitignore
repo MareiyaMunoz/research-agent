@@ -5,3 +5,6 @@ __pycache__/
 .cache/
 logs/
 PROJECT_PLAN.md
+*.db
+*.sqlite
+*.sqlite3
