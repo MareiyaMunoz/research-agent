@@ -1,0 +1,60 @@
+# Run the whole stack on a clean machine:  docker compose up --build
+#   api  ->  http://localhost:8000  (REST + /docs)
+#   ui   ->  http://localhost:8501  (Streamlit; needs the api service)
+#   db   ->  PostgreSQL 16 (used only if DATABASE_URL points at it)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: research
+      POSTGRES_PASSWORD: research
+      POSTGRES_DB: research_agent
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U research -d research_agent"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # optional: expose 5432 locally for debugging; harmless defaults otherwise
+    ports:
+      - "5432:5432"
+
+  api:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # the container talks to Postgres by service name; ignore any local value
+      DATABASE_URL: postgresql+psycopg://research:research@db:5432/research_agent
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  ui:
+    build: .
+    command:
+      - streamlit
+      - run
+      - app/ui.py
+      - --server.headless
+      - "true"
+      - --server.address
+      - 0.0.0.0
+      - --server.port
+      - "8501"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      STREAMLIT_API_BASE: http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
+
+volumes:
+  pgdata:
