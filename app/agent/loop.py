@@ -88,8 +88,12 @@ def _response_text(response) -> str | None:
 
 
 def run_agent(
-    question: str, max_steps: int = 8, max_seconds: int = 120
+    question: str,
+    max_steps: int = 8,
+    max_seconds: int = 120,
+    on_step=None,
 ) -> AgentResult:
+    """Run the research loop. `on_step` receives each StepRecord as it happens."""
     # The conversation history, which grows every round
     contents = [types.Content(role="user", parts=[types.Part(text=question)])]
     ledger = SourceLedger()
@@ -98,11 +102,16 @@ def run_agent(
     started = time.monotonic()
     prev_calls: set[str] = set()   # tool requests seen in the previous step
 
+    def record(step_record: StepRecord) -> None:
+        trace.append(step_record)
+        if on_step is not None:
+            on_step(step_record)
+
     for step in range(1, max_steps + 1):
         # Wall-clock guard: a slow run must not burn time and money forever
         if time.monotonic() - started >= max_seconds:
             logger.warning("step %s: exceeded %ss deadline, stopping", step, max_seconds)
-            trace.append(
+            record(
                 StepRecord(
                     step=step,
                     action="limit",
@@ -127,7 +136,7 @@ def run_agent(
         candidates = getattr(response, "candidates", None) or []
         if not candidates:
             logger.warning("step %s: no candidates (blocked or empty response)", step)
-            trace.append(
+            record(
                 StepRecord(
                     step=step, action="answer", ok=False, error="blocked or empty response"
                 )
@@ -150,7 +159,7 @@ def run_agent(
             text = _response_text(response)
             if text is None:
                 logger.warning("step %s: response contained neither tools nor text", step)
-                trace.append(
+                record(
                     StepRecord(
                         step=step, action="answer", ok=False, error="no text in response"
                     )
@@ -162,7 +171,7 @@ def run_agent(
                     trace=trace,
                 )
             logger.info("step %s: final answer (%s chars)", step, len(text))
-            trace.append(StepRecord(step=step, action="answer", result_chars=len(text)))
+            record(StepRecord(step=step, action="answer", result_chars=len(text)))
             return AgentResult(
                 answer=text,
                 sources=ledger.as_list(),
@@ -187,7 +196,7 @@ def run_agent(
                     call.name,
                     args,
                 )
-                trace.append(
+                record(
                     StepRecord(
                         step=step,
                         action=call.name,
@@ -204,7 +213,7 @@ def run_agent(
                 logger.info("step %s: %s -> %s", step, call.name, str(result)[:200])
                 logger.debug("step %s: %s full result: %s", step, call.name, result)
                 error = result.get("error") if isinstance(result, dict) else None
-                trace.append(
+                record(
                     StepRecord(
                         step=step,
                         action=call.name,
@@ -240,7 +249,7 @@ def run_agent(
         contents.append(types.Content(role="user", parts=result_parts))
 
     logger.warning("step limit reached after %s steps", max_steps)
-    trace.append(
+    record(
         StepRecord(step=max_steps, action="limit", ok=False, error="reached max_steps")
     )
     return AgentResult(
