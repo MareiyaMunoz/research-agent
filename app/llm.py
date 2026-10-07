@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import errors, types
 
+from app.log import get_logger
+
+logger = get_logger(__name__)
+
 load_dotenv()  # reads .env into environment variables
 
 # attempts=1 disables the SDK's built-in retries: our retry loop below is the
@@ -32,20 +36,26 @@ def generate(**kwargs):
             if e.code not in RETRYABLE or is_last:
                 raise  # not temporary, or out of attempts
             wait = 2 ** attempt  # 1s, 2s, 4s, 8s
-            print(f"Gemini error {e.code}, retrying in {wait}s "
-                  f"(attempt {attempt + 1}/{MAX_ATTEMPTS})...")
+            logger.warning(
+                "Gemini error %s, retrying in %ss (attempt %s/%s)",
+                e.code,
+                wait,
+                attempt + 1,
+                MAX_ATTEMPTS,
+            )
             time.sleep(wait)
 
 
 def _log_usage(response) -> None:
-    """Print token usage so quota consumption is visible per call."""
+    """Log token usage per call so quota consumption stays visible."""
     usage = getattr(response, "usage_metadata", None)
     if usage is None:
         return
-    print(
-        f"[usage] prompt={usage.prompt_token_count} "
-        f"output={usage.candidates_token_count} "
-        f"total={usage.total_token_count}"
+    logger.debug(
+        "[usage] prompt=%s output=%s total=%s",
+        usage.prompt_token_count,
+        usage.candidates_token_count,
+        usage.total_token_count,
     )
 
 

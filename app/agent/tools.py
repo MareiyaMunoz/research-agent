@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 from tavily import TavilyClient
 
 from app.agent import cache
+from app.log import get_logger
+
+logger = get_logger(__name__)
 
 load_dotenv()
 
@@ -25,10 +28,13 @@ def search(query: str) -> dict:
 
     cached = cache.get("search", query)
     if cached is not None:
-        print("  (search cache hit)")
+        logger.debug("search cache hit: %s", query)
         return cached
 
-    response = tavily.search(query=query, max_results=MAX_RESULTS)
+    try:
+        response = tavily.search(query=query, max_results=MAX_RESULTS)
+    except Exception as e:
+        return {"error": f"Search failed: {type(e).__name__}: {e}"}
     output = {
         "query": query,
         "results": [
@@ -46,7 +52,7 @@ def read_page(url: str) -> dict:
 
     cached = cache.get("page", url)
     if cached is not None:
-        print("  (page cache hit)")
+        logger.debug("page cache hit: %s", url)
         return cached
 
     try:

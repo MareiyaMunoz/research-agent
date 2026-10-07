@@ -14,3 +14,6 @@ print("\n" + "=" * 70)
 print(render_report(question, result))
 print("=" * 70)
 print(f"\nsteps used: {result.steps}, reached limit: {result.reached_limit}")
+print("trace:")
+for rec in result.trace:
+    print(f"  {rec}")
