@@ -21,6 +21,11 @@ from sqlalchemy.orm import (
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///research.db")
+if DATABASE_URL.startswith(("postgres://", "postgresql://")) and "+psycopg" not in DATABASE_URL:
+    # Railway/Neon hand out bare postgres:// URLs; only psycopg (v3) is installed.
+    DATABASE_URL = DATABASE_URL.replace(
+        "postgres://", "postgresql+psycopg://", 1
+    ).replace("postgresql://", "postgresql+psycopg://", 1)
 
 _connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 engine = create_engine(DATABASE_URL, connect_args=_connect_args)

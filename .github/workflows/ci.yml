@@ -19,7 +19,7 @@ jobs:
       - name: Run offline test suites
         run: |
           set -euo pipefail
-          for t in tests/*_test.py; do
+          for t in tests/test_*.py; do
             echo "== $t =="
             python "$t"
           done

@@ -135,7 +135,7 @@ Compose uses `DATABASE_URL=postgresql+psycopg://research:research@db:5432/resear
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) runs:
-- Offline test suites (`tests/*_test.py`)
+- Offline test suites (`tests/test_*.py`)
 - `docker compose config -q` and `docker compose build`
 
 ## Evaluation results
