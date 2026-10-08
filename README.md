@@ -58,7 +58,7 @@ Key data flow:
 
 > A short demo GIF/video is recommended. If you have one, place it at `docs/demo.gif` and link it here.
 
-_(Demo GIF to be added — run the UI locally to see it in action.)_
+**Try it live**: https://ui-production-4f8a.up.railway.app — type a research question and watch the step trace update until the cited report renders.
 
 ## Getting started
 
@@ -186,7 +186,25 @@ Full JSON results: see `evaluation/results/scores_baseline.json` and `evaluation
 
 ## Deployment
 
-This project is designed to be deployable (e.g., Render/Railway for API/UI, Neon/Supabase for Postgres). The current implementation satisfies the plan’s Phase 11 requirements (docs + containerization). Add a live link here once deployed.
+**Live links:**
+- **UI**: https://ui-production-4f8a.up.railway.app
+- **API**: https://api-production-485d5.up.railway.app (interactive docs at [`/docs`](https://api-production-485d5.up.railway.app/docs), health at [`/api/health`](https://api-production-485d5.up.railway.app/api/health))
+
+**Architecture on Railway** (3 services in one project, one GitHub repo):
+
+```
+Browser ──► https://ui-production-4f8a.up.railway.app   (Streamlit, service "ui")
+                │ private network (http://api.railway.internal:8080)
+                ▼
+           FastAPI service "api" ──► Railway Postgres (service "Postgres", private)
+                │
+                └──► Gemini + Tavily APIs (outbound)
+```
+
+- Both app services build from the root `Dockerfile`; the `ui` service overrides the start command with `streamlit run app/ui.py` and reaches the API over Railway's private DNS (`api.railway.internal:8080`), so inter-service traffic never leaves Railway's network.
+- The API reads `DATABASE_URL` from Railway's `${{Postgres.DATABASE_URL}}` reference variable; `app/db.py` normalizes Railway's bare `postgresql://` URL to the `postgresql+psycopg://` dialect.
+- Railway injects `PORT` at runtime (8080); both servers bind `0.0.0.0:$PORT`.
+- Pushing to `main` triggers GitHub Actions tests and an automatic Railway redeploy of both services.
 
 ## License
 
