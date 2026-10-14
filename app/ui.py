@@ -34,6 +34,8 @@ def format_event(t: dict) -> str:
 def render_result(result: dict) -> None:
     """The final answer: report, warnings, source list."""
     checks = result.get("citation_checks") or {}
+    claims = result.get("claim_checks") or {}
+    counts = claims.get("counts") or {}
     if checks.get("orphans"):
         st.warning(
             "Unverified citation(s) "
@@ -46,6 +48,15 @@ def render_result(result: dict) -> None:
             + ", ".join(f"[{n}]" for n in checks["uncited"])
             + " were read but never cited."
         )
+    if counts.get("unsupported"):
+        st.warning(
+            f"{counts['unsupported']} claim(s) may not be supported by the "
+            "cited source (low wording overlap)."
+        )
+    if counts.get("weak"):
+        st.info(f"{counts['weak']} claim(s) only loosely match their cited source.")
+    if counts.get("supported"):
+        st.success(f"{counts['supported']} claim(s) verified against their sources.")
     if result.get("reached_limit"):
         st.warning("The agent hit the step limit — this report may be incomplete.")
     st.markdown(result["report_md"])

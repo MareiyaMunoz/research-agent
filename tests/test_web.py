@@ -57,8 +57,16 @@ ANSWER = "Connection pooling reuses connections [1]. This speeds up apps [9]."
 RESULT = AgentResult(
     answer=ANSWER,
     sources=[
-        {"n": 1, "url": "https://example.com/one", "title": "Source One", "step": 2},
-        {"n": 2, "url": "https://example.com/two", "title": "Source Two", "step": 2},
+        {
+            "n": 1,
+            "url": "https://example.com/one",
+            "title": "Source One",
+            "step": 2,
+            "text": "Connection pooling reuses connections instead of opening a new "
+            "one per request, which speeds up applications.",
+        },
+        {"n": 2, "url": "https://example.com/two", "title": "Source Two", "step": 2,
+         "text": "An unrelated page about gardening and the weather."},
     ],
     steps=2,
     trace=[
@@ -120,6 +128,9 @@ with TestClient(backend.app) as client1:
         )
         ok("citation_checks orb/unc") if res["citation_checks"]["orphans"] == [9] and res["citation_checks"]["uncited"] == [2] else fail(
             "citation_checks", res["citation_checks"]
+        )
+        ok("claim_checks supported+orphan") if res["claim_checks"]["counts"]["supported"] == 1 and res["claim_checks"]["counts"]["orphan"] == 1 else fail(
+            "claim_checks", res.get("claim_checks")
         )
         ok("sources serialized") if len(res["sources"]) == 2 else fail("sources", res["sources"])
 

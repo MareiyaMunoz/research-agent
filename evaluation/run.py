@@ -87,7 +87,11 @@ def main() -> None:
             "id": q["id"],
             "question": q["question"],
             "answer": result.answer,
-            "sources": result.sources,
+            # Drop stored page text: it is only needed at render/verify time
+            # and would bloat the answer files.
+            "sources": [
+                {k: v for k, v in s.items() if k != "text"} for s in result.sources
+            ],
             "steps": result.steps,
             "reached_limit": result.reached_limit,
             "duration_s": round(time.monotonic() - t0, 1),

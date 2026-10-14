@@ -24,7 +24,7 @@ from app.agent.loop import AgentResult, StepRecord, run_agent
 from app.db import Report, SourceRow, StepRow, loads
 from app.llm import MODEL
 from app.log import get_logger
-from app.report import check_citations, render_report
+from app.report import check_citations, render_report, verify_claims
 
 logger = get_logger(__name__)
 
@@ -76,9 +76,10 @@ def _source_dict(s: SourceRow) -> dict:
 
 def _result_payload(r: Report, sources: list[SourceRow]) -> dict:
     """Final answer plus everything the UI renders: report, sources, checks."""
+    # Verification needs the stored page text; the public source list does not.
     result = AgentResult(
         answer=r.answer,
-        sources=[_source_dict(s) for s in sources],
+        sources=[{**_source_dict(s), "text": s.text} for s in sources],
         steps=r.agent_steps or 0,
         reached_limit=r.reached_limit,
     )
@@ -86,8 +87,9 @@ def _result_payload(r: Report, sources: list[SourceRow]) -> dict:
         "answer": result.answer,
         "steps": result.steps,
         "reached_limit": result.reached_limit,
-        "sources": result.sources,
+        "sources": [_source_dict(s) for s in sources],
         "citation_checks": check_citations(result),
+        "claim_checks": verify_claims(result),
         "report_md": render_report(r.question, result),
     }
 
@@ -197,6 +199,7 @@ def _worker_loop() -> None:
                             url=src["url"],
                             title=src.get("title"),
                             step=src.get("step", 0),
+                            text=src.get("text"),
                         )
                     )
                 s.commit()

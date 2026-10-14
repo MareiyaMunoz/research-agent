@@ -7,6 +7,7 @@ An autonomous web research agent that thinks, searches, reads pages, and produce
 - **Autonomous agent loop**: Uses an LLM with tool calling to repeat think → use tool → see results until it has enough information (max steps/time guardrails)
 - **Real web tools**: `search` (Tavily API) and `read_page` (httpx + trafilatura) with caching and error handling
 - **Citations that are trustworthy**: A source ledger tracks only pages actually read in order; reports auto-generate references and `check_citations()` flags orphans/uncited claims
+- **Claim verification**: `verify_claims()` compares each cited claim against the text of the source it cites (deterministic, no extra LLM calls) and flags weak/unsupported claims in the report, API, and UI
 - **Guardrails & observability**: Step/time limits, duplicate-call prevention, quota pacing/retries, structured logging, and full step traces
 - **API + UI**: FastAPI job backend (FIFO worker, survives restarts) and Streamlit interface
 - **Persistence**: SQLAlchemy models for reports, sources, and steps (SQLite by default, Postgres-ready via `DATABASE_URL`)
@@ -28,7 +29,7 @@ app/
   db.py          # SQLAlchemy models and helpers
   llm.py         # Gemini client with pacing/retries/usage logging
   log.py         # Structured logging (console + logs/agent.log)
-  report.py      # Report rendering + citation checking
+  report.py      # Report rendering + citation/claim checking
   web.py         # uvicorn entrypoint
   ui.py          # Streamlit UI
 
@@ -42,6 +43,7 @@ evaluation/
 tests/
   test_guardrails.py   # Offline guardrail checks
   test_resilience.py  # Quota resilience + batching
+  test_verification.py # Claim-to-source verification (deterministic)
   test_web.py         # API + persistence lifecycle
 
 experiments/     # Prototyping demos (tool calling, report, etc.)
@@ -51,7 +53,7 @@ Key data flow:
 1. UI/API receives a question → creates job in DB (queued)
 2. FIFO worker runs `run_agent()` with `on_step()` persisting each `StepRecord`
 3. `run_agent()` calls tools (`search`, `read_page`), records verified reads in `SourceLedger`
-4. On completion, answer + sources + steps are saved; `render_report()` produces markdown with references and warnings
+4. On completion, answer + sources + steps are saved; `render_report()` produces markdown with references, citation checks, and claim-verification warnings
 5. UI polls job detail until done/error and renders report + live trace
 
 ## Demo
@@ -104,6 +106,7 @@ Submit a question in the UI. The agent will search/read pages and return a cited
 # Run all test suites
 python tests/test_guardrails.py
 python tests/test_resilience.py
+python tests/test_verification.py
 python tests/test_web.py
 ```
 
@@ -164,6 +167,7 @@ Full JSON results: see `evaluation/results/scores_baseline.json` and `evaluation
 ## Lessons learned
 
 - **Ledger > model claims**: Treating only actually-read pages as citable (SourceLedger) eliminates citation hallucinations and makes reports auditable.
+- **Verify at the claim level, deterministically**: A citation number existing is not the same as the source supporting the claim. Comparing each claim's wording against the stored source text costs no LLM calls and catches claims the model back-filled with the wrong source.
 - **Guardrails early**: Step/time limits, duplicate-detection, and blocked/empty response handling prevent runaway loops and noisy failures.
 - **Quota-aware LLM calls**: Pacing between calls (`MIN_INTERVAL`), retrying only transient errors, detecting daily-quota messages, and aborting on sustained failures made batch eval resilient without hammering the API.
 - **Batching judge calls**: Chunking dataset into batches (size 16) cut judge round-trips and preserved input order; retrying on malformed JSON avoided flaky parse crashes.

@@ -12,11 +12,18 @@ class SourceLedger:
         self._sources = []   # list of dicts: {"n": 1, "url": ..., "title": ..., "step": ...}
         self._by_url = {}    # url -> index in _sources, for duplicate detection
 
-    def record(self, url: str, step: int, title: str | None = None) -> int:
+    def record(
+        self,
+        url: str,
+        step: int,
+        title: str | None = None,
+        text: str | None = None,
+    ) -> int:
         """Register a successfully read page. Returns its citation number.
 
         Reading the same URL twice returns the original number instead of
-        creating a duplicate entry.
+        creating a duplicate entry. `text` is the extracted page text, kept so
+        the report can later verify that claims are backed by the source.
         """
         url = url.strip()
         if url in self._by_url:
@@ -27,6 +34,7 @@ class SourceLedger:
             "url": url,
             "title": title or _fallback_title(url),
             "step": step,
+            "text": text,
         }
         self._by_url[url] = len(self._sources)
         self._sources.append(source)

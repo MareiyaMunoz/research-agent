@@ -10,7 +10,16 @@ import json
 import os
 import time
 
-from sqlalchemy import Boolean, Float, ForeignKey, String, Text, create_engine
+from sqlalchemy import (
+    Boolean,
+    Float,
+    ForeignKey,
+    String,
+    Text,
+    create_engine,
+    inspect,
+    text as sql_text,
+)
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -75,6 +84,8 @@ class SourceRow(Base):
     url: Mapped[str] = mapped_column(Text)
     title: Mapped[str | None] = mapped_column(Text, nullable=True)
     step: Mapped[int]
+    # Extracted page text, kept so reports can verify claims after a restart.
+    text: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     report: Mapped[Report] = relationship(back_populates="sources")
 
@@ -99,8 +110,25 @@ class StepRow(Base):
 
 
 def init_db() -> None:
-    """Create tables if they don't exist yet."""
+    """Create tables if they don't exist yet, then apply tiny migrations."""
     Base.metadata.create_all(engine)
+    _ensure_columns()
+
+
+def _ensure_columns() -> None:
+    """Add columns introduced after a table already existed (no Alembic here).
+
+    `create_all` never alters existing tables, so databases created before
+    claim verification would lack `sources.text`. ALTER TABLE is portable
+    across SQLite and Postgres, so we add it by hand when it is missing.
+    """
+    inspector = inspect(engine)
+    if "sources" not in inspector.get_table_names():
+        return
+    columns = {c["name"] for c in inspector.get_columns("sources")}
+    if "text" not in columns:
+        with engine.begin() as conn:
+            conn.execute(sql_text("ALTER TABLE sources ADD COLUMN text TEXT"))
 
 
 def mark_interrupted_runs() -> None:

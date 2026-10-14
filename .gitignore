@@ -7,6 +7,7 @@ logs/
 PROJECT_PLAN.md
 AGENTS.md
 MEMORY.md
+Possible-Improvement.md
 *.db
 *.sqlite
 *.sqlite3

@@ -235,6 +235,7 @@ def run_agent(
                     result["url"],
                     step=step,
                     title=titles_by_url.get(result["url"]),
+                    text=result.get("text"),
                 )
 
             result_parts.append(
