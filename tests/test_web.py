@@ -59,7 +59,7 @@ RESULT = AgentResult(
     sources=[
         {
             "n": 1,
-            "url": "https://example.com/one",
+            "url": "https://docs.python.org/3/library/sqlite3.html",
             "title": "Source One",
             "step": 2,
             "text": "Connection pooling reuses connections instead of opening a new "
@@ -132,6 +132,9 @@ with TestClient(backend.app) as client1:
         ok("claim_checks supported+orphan") if res["claim_checks"]["counts"]["supported"] == 1 and res["claim_checks"]["counts"]["orphan"] == 1 else fail(
             "claim_checks", res.get("claim_checks")
         )
+        ok("quality_checks present") if res["quality_checks"]["counts"]["high"] >= 1 and all(
+            s.get("quality") for s in res["sources"]
+        ) else fail("quality_checks", res.get("quality_checks"))
         ok("sources serialized") if len(res["sources"]) == 2 else fail("sources", res["sources"])
 
     with patch.object(backend, "run_agent", side_effect=fifo_agent):

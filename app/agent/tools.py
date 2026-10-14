@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from tavily import TavilyClient
 
 from app.agent import cache
+from app.agent.quality import score_url
 from app.log import get_logger
 
 logger = get_logger(__name__)
@@ -17,6 +18,12 @@ tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 MAX_RESULTS = 5          # search results per query
 MAX_PAGE_CHARS = 6000    # keeps one page from flooding the history
 USER_AGENT = "Mozilla/5.0 (research-agent learning project)"
+
+
+def _quality_hint(url: str | None, title: str | None = None, text: str | None = None) -> dict:
+    """Compact quality tier for the model (full detail is kept in the ledger)."""
+    q = score_url(url or "", title, text)
+    return {"tier": q["tier"], "score": q["score"]}
 
 
 # --- The actual functions (your code runs these) ---
@@ -38,7 +45,13 @@ def search(query: str) -> dict:
     output = {
         "query": query,
         "results": [
-            {"title": r.get("title"), "url": r.get("url"), "snippet": r.get("content")}
+            {
+                "title": r.get("title"),
+                "url": r.get("url"),
+                "snippet": r.get("content"),
+                # Domain-only quality hint so the model can prefer strong pages.
+                "quality": _quality_hint(r.get("url"), r.get("title")),
+            }
             for r in response.get("results", [])
         ],
     }
@@ -78,6 +91,7 @@ def read_page(url: str) -> dict:
         "text": text[:MAX_PAGE_CHARS],
         "truncated": len(text) > MAX_PAGE_CHARS,
         "total_chars": len(text),
+        "quality": _quality_hint(url, None, text),
     }
     cache.put("page", url, output)
     return output

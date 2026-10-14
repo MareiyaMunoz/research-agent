@@ -8,6 +8,7 @@ An autonomous web research agent that thinks, searches, reads pages, and produce
 - **Real web tools**: `search` (Tavily API) and `read_page` (httpx + trafilatura) with caching and error handling
 - **Citations that are trustworthy**: A source ledger tracks only pages actually read in order; reports auto-generate references and `check_citations()` flags orphans/uncited claims
 - **Claim verification**: `verify_claims()` compares each cited claim against the text of the source it cites (deterministic, no extra LLM calls) and flags weak/unsupported claims in the report, API, and UI
+- **Source quality scoring**: `score_url()` ranks each source high/medium/low from its domain, TLD, and content (official docs and academic sources rank highest); the tier is shown to the model, stored, and annotated in reports
 - **Guardrails & observability**: Step/time limits, duplicate-call prevention, quota pacing/retries, structured logging, and full step traces
 - **API + UI**: FastAPI job backend (FIFO worker, survives restarts) and Streamlit interface
 - **Persistence**: SQLAlchemy models for reports, sources, and steps (SQLite by default, Postgres-ready via `DATABASE_URL`)
@@ -24,6 +25,7 @@ app/
     loop.py      # Core agent loop (tool calling, guardrails, trace)
     tools.py     # search/read_page + tool registry/declarations
     sources.py   # Source ledger (verified citations)
+    quality.py   # Deterministic source-quality scoring
     cache.py     # Simple in-memory cache
   backend.py     # FastAPI app + FIFO job worker + persistence
   db.py          # SQLAlchemy models and helpers
@@ -44,6 +46,7 @@ tests/
   test_guardrails.py   # Offline guardrail checks
   test_resilience.py  # Quota resilience + batching
   test_verification.py # Claim-to-source verification (deterministic)
+  test_quality.py     # Source-quality scoring (deterministic)
   test_web.py         # API + persistence lifecycle
 
 experiments/     # Prototyping demos (tool calling, report, etc.)
@@ -107,6 +110,7 @@ Submit a question in the UI. The agent will search/read pages and return a cited
 python tests/test_guardrails.py
 python tests/test_resilience.py
 python tests/test_verification.py
+python tests/test_quality.py
 python tests/test_web.py
 ```
 
@@ -168,6 +172,7 @@ Full JSON results: see `evaluation/results/scores_baseline.json` and `evaluation
 
 - **Ledger > model claims**: Treating only actually-read pages as citable (SourceLedger) eliminates citation hallucinations and makes reports auditable.
 - **Verify at the claim level, deterministically**: A citation number existing is not the same as the source supporting the claim. Comparing each claim's wording against the stored source text costs no LLM calls and catches claims the model back-filled with the wrong source.
+- **Rank sources with plain Python**: A domain/TLD/content heuristic (`score_url`) ranks sources without an LLM call, and feeding that tier back to the model nudges it toward official docs and academic sources.
 - **Guardrails early**: Step/time limits, duplicate-detection, and blocked/empty response handling prevent runaway loops and noisy failures.
 - **Quota-aware LLM calls**: Pacing between calls (`MIN_INTERVAL`), retrying only transient errors, detecting daily-quota messages, and aborting on sustained failures made batch eval resilient without hammering the API.
 - **Batching judge calls**: Chunking dataset into batches (size 16) cut judge round-trips and preserved input order; retrying on malformed JSON avoided flaky parse crashes.

@@ -18,12 +18,14 @@ class SourceLedger:
         step: int,
         title: str | None = None,
         text: str | None = None,
+        quality: dict | None = None,
     ) -> int:
         """Register a successfully read page. Returns its citation number.
 
         Reading the same URL twice returns the original number instead of
         creating a duplicate entry. `text` is the extracted page text, kept so
-        the report can later verify that claims are backed by the source.
+        the report can later verify that claims are backed by the source;
+        `quality` is the deterministic source-quality assessment.
         """
         url = url.strip()
         if url in self._by_url:
@@ -35,6 +37,7 @@ class SourceLedger:
             "title": title or _fallback_title(url),
             "step": step,
             "text": text,
+            "quality": quality,
         }
         self._by_url[url] = len(self._sources)
         self._sources.append(source)

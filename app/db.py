@@ -86,6 +86,8 @@ class SourceRow(Base):
     step: Mapped[int]
     # Extracted page text, kept so reports can verify claims after a restart.
     text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Deterministic quality assessment ({score, tier, reasons}) as JSON text.
+    quality_json: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     report: Mapped[Report] = relationship(back_populates="sources")
 
@@ -126,9 +128,14 @@ def _ensure_columns() -> None:
     if "sources" not in inspector.get_table_names():
         return
     columns = {c["name"] for c in inspector.get_columns("sources")}
-    if "text" not in columns:
-        with engine.begin() as conn:
-            conn.execute(sql_text("ALTER TABLE sources ADD COLUMN text TEXT"))
+    additions = {
+        "text": "ALTER TABLE sources ADD COLUMN text TEXT",
+        "quality_json": "ALTER TABLE sources ADD COLUMN quality_json TEXT",
+    }
+    with engine.begin() as conn:
+        for name, ddl in additions.items():
+            if name not in columns:
+                conn.execute(sql_text(ddl))
 
 
 def mark_interrupted_runs() -> None:

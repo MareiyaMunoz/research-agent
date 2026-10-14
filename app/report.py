@@ -1,6 +1,7 @@
 import re
 
 from app.agent.loop import AgentResult
+from app.agent.quality import ensure_qualities, summarize
 
 # Matches [1], [2, 3], [1,2,4] - the model groups citations in various ways
 CITATION_RE = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
@@ -157,6 +158,8 @@ def render_report(question: str, result: AgentResult) -> str:
     """Build a Markdown report: heading, summary, warnings, references."""
     checks = check_citations(result)
     claims = verify_claims(result)
+    sources = ensure_qualities(result.sources)
+    quality = summarize(sources)
     lines = [
         f"# {_topic_from_question(question)}",
         "",
@@ -210,11 +213,23 @@ def render_report(question: str, result: AgentResult) -> str:
             "incomplete.",
             "",
         ]
+    if quality["low_quality"]:
+        lines += [
+            "> **Note:** "
+            + f"{len(quality['low_quality'])} of {len(sources)} source(s) are "
+            "low-quality (blogs/forums): "
+            + ", ".join(f"[{n}]" for n in quality["low_quality"])
+            + ".",
+            "",
+        ]
 
     lines += ["## References", ""]
-    if result.sources:
-        for s in result.sources:
-            lines.append(f"[{s['n']}] [{s['title']}]({s['url']})")
+    if sources:
+        for s in sources:
+            q = s["quality"]
+            lines.append(
+                f"[{s['n']}] [{s['title']}]({s['url']}) — {q['tier']} ({q['score']}/100)"
+            )
     else:
         lines.append("*No sources were read.*")
 

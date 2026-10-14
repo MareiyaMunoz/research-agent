@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from app import db
 from app.agent.loop import AgentResult, StepRecord, run_agent
+from app.agent.quality import ensure_qualities, summarize
 from app.db import Report, SourceRow, StepRow, loads
 from app.llm import MODEL
 from app.log import get_logger
@@ -71,25 +72,37 @@ def _step_event(s: StepRow) -> dict:
 
 
 def _source_dict(s: SourceRow) -> dict:
-    return {"n": s.n, "url": s.url, "title": s.title, "step": s.step}
+    return {
+        "n": s.n,
+        "url": s.url,
+        "title": s.title,
+        "step": s.step,
+        "quality": loads(s.quality_json),
+    }
 
 
 def _result_payload(r: Report, sources: list[SourceRow]) -> dict:
     """Final answer plus everything the UI renders: report, sources, checks."""
-    # Verification needs the stored page text; the public source list does not.
+    # Verification needs the stored page text; quality is recomputed when an
+    # old row predates quality scoring (quality_json is null).
+    with_text = ensure_qualities(
+        [{**_source_dict(s), "text": s.text} for s in sources]
+    )
     result = AgentResult(
         answer=r.answer,
-        sources=[{**_source_dict(s), "text": s.text} for s in sources],
+        sources=with_text,
         steps=r.agent_steps or 0,
         reached_limit=r.reached_limit,
     )
+    public = [{k: v for k, v in s.items() if k != "text"} for s in with_text]
     return {
         "answer": result.answer,
         "steps": result.steps,
         "reached_limit": result.reached_limit,
-        "sources": [_source_dict(s) for s in sources],
+        "sources": public,
         "citation_checks": check_citations(result),
         "claim_checks": verify_claims(result),
+        "quality_checks": summarize(result.sources),
         "report_md": render_report(r.question, result),
     }
 
@@ -200,6 +213,7 @@ def _worker_loop() -> None:
                             title=src.get("title"),
                             step=src.get("step", 0),
                             text=src.get("text"),
+                            quality_json=db.dumps(src.get("quality")),
                         )
                     )
                 s.commit()
