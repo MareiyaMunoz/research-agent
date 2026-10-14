@@ -11,7 +11,25 @@ import streamlit as st
 
 API_BASE = os.getenv("STREAMLIT_API_BASE", "http://127.0.0.1:8000")
 
-st.set_page_config(page_title="Research Agent", layout="centered")
+st.set_page_config(
+    page_title="Research Agent",
+    page_icon=":material/travel_explore:",
+    layout="centered",
+)
+
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+    .stApp { font-family: 'DM Sans', system-ui, sans-serif; }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', 'DM Sans', sans-serif; letter-spacing: -0.01em; }
+    a:focus-visible, button:focus-visible { outline: 2px solid #7C3AED; outline-offset: 2px; border-radius: 4px; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+TIER_COLOR = {"high": "green", "medium": "orange", "low": "red"}
 
 
 def format_event(t: dict) -> str:
@@ -50,15 +68,12 @@ def render_result(result: dict) -> None:
             + ", ".join(f"[{n}]" for n in checks["uncited"])
             + " were read but never cited."
         )
-    if counts.get("unsupported"):
-        st.warning(
-            f"{counts['unsupported']} claim(s) may not be supported by the "
-            "cited source (low wording overlap)."
-        )
-    if counts.get("weak"):
-        st.info(f"{counts['weak']} claim(s) only loosely match their cited source.")
-    if counts.get("supported"):
-        st.success(f"{counts['supported']} claim(s) verified against their sources.")
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Verified claims", counts.get("supported", 0))
+    c2.metric("Loosely matched", counts.get("weak", 0))
+    c3.metric("Unsupported", counts.get("unsupported", 0))
+
     if qcounts:
         st.caption(
             f"Source quality — avg {quality.get('avg_score', 0)}/100 "
@@ -67,28 +82,47 @@ def render_result(result: dict) -> None:
         )
     if result.get("reached_limit"):
         st.warning("The agent hit the step limit — this report may be incomplete.")
+
     st.markdown(result["report_md"])
-    with st.expander("Sources"):
-        if result.get("sources"):
-            for s in result["sources"]:
+
+    st.download_button(
+        "Download report (.md)",
+        result["report_md"],
+        file_name="research-report.md",
+        mime="text/markdown",
+    )
+
+    sources = result.get("sources") or []
+    with st.expander(f"Sources ({len(sources)})"):
+        if sources:
+            for s in sources:
                 q = s.get("quality") or {}
-                badge = f" — {q.get('tier')} ({q.get('score')}/100)" if q else ""
-                st.markdown(f"[{s['n']}] [{s['title']}]({s['url']}){badge}")
+                tier = q.get("tier")
+                color = TIER_COLOR.get(tier, "gray")
+                badge = f" · :{color}[{tier} {q.get('score')}/100]" if q else ""
+                st.markdown(f"**[{s['n']}]** [{s['title']}]({s['url']}){badge}")
         else:
             st.write("No sources were read.")
 
 
 def show_job(payload: dict) -> None:
     st.divider()
-    st.caption(
-        f"job {payload['job_id']} · {payload['status']} · {payload['steps']} step(s)"
-    )
-    for e in payload["events"]:
-        st.caption(format_event(e))
-    if payload["status"] == "done":
-        st.success("Research complete")
+    status = payload["status"]
+    heading = {
+        "done": f"Research complete · {payload['steps']} step(s)",
+        "error": "Research failed",
+    }.get(status, f"Still working · {payload['steps']} step(s)")
+    st.subheader(heading)
+    st.caption(f"job {payload['job_id']} · {status}")
+
+    if payload["events"]:
+        with st.expander("Trace", expanded=status != "done"):
+            for e in payload["events"]:
+                st.caption(format_event(e))
+
+    if status == "done":
         render_result(payload["result"])
-    elif payload["status"] == "error":
+    elif status == "error":
         st.error(f"Job failed: {payload.get('error')}")
     else:
         st.info("Still working — refresh the page to see the latest progress.")
@@ -112,20 +146,24 @@ def submit(question: str, max_steps: int, max_seconds: int) -> dict:
         return {}
     job_id = created.json()["job_id"]
 
-    live = st.empty()
-    payload = None
-    while True:
-        resp = httpx.get(f"{API_BASE}/api/jobs/{job_id}", timeout=10)
-        resp.raise_for_status()
-        payload = resp.json()
-        lines = [format_event(e) for e in payload["events"]]
-        if payload["status"] == "queued":
-            lines.append("waiting for a free run slot...")
-        live.caption("\n".join(lines) or "starting...")
-        if payload["status"] in ("done", "error"):
-            break
-        time.sleep(1.0)
-    live.empty()
+    with st.status("Researching…", expanded=True) as status:
+        live = st.empty()
+        payload = None
+        while True:
+            resp = httpx.get(f"{API_BASE}/api/jobs/{job_id}", timeout=10)
+            resp.raise_for_status()
+            payload = resp.json()
+            lines = [format_event(e) for e in payload["events"]]
+            if payload["status"] == "queued":
+                lines.append("Waiting for a free run slot…")
+            live.caption("\n".join(lines) or "Starting…")
+            if payload["status"] in ("done", "error"):
+                break
+            time.sleep(1.0)
+        if payload["status"] == "done":
+            status.update(label=f"Done · {payload['steps']} step(s)", state="complete")
+        else:
+            status.update(label="Failed", state="error")
     return payload
 
 
@@ -144,17 +182,20 @@ def sidebar() -> str | None:
         return None
     jobs = resp.json()["jobs"]
     if not jobs:
-        st.sidebar.caption("No runs yet.")
+        st.sidebar.caption("No runs yet. Ask a question to start one.")
         return None
+    st.sidebar.caption(f"{len(jobs)} run(s)")
     for s in jobs[:20]:
-        label = f"[{s['status']}] {s['question'][:38]}{'...' if len(s['question']) > 38 else ''}"
+        label = f"{s['status']} · {s['question'][:38]}{'…' if len(s['question']) > 38 else ''}"
         if st.sidebar.button(label, key=s["job_id"], use_container_width=True):
             return s["job_id"]
     return None
 
 
 def main() -> None:
-    question = st.text_input("Question", key="question")
+    question = st.text_input(
+        "Question", key="question", placeholder="e.g. How does connection pooling work?"
+    )
     with st.expander("Advanced"):
         max_steps = st.slider("Max steps", 3, 12, 8)
         max_seconds = st.slider("Max seconds", 10, 600, 120, step=10)
@@ -163,19 +204,18 @@ def main() -> None:
         if not (question or "").strip():
             st.error("Write a question first.")
         else:
-            payload = submit(
-                question.strip(), int(max_steps), int(max_seconds)
-            )
+            payload = submit(question.strip(), int(max_steps), int(max_seconds))
             if payload:
                 st.session_state["open_job"] = payload["job_id"]
-                show_job(payload)
 
-    job_id = sidebar()
-    if job_id is not None:
-        st.session_state["open_job"] = job_id
-    if st.session_state.get("open_job"):
+    picked = sidebar()
+    if picked:
+        st.session_state["open_job"] = picked
+
+    job_id = st.session_state.get("open_job")
+    if job_id:
         try:
-            resp = httpx.get(f"{API_BASE}/api/jobs/{st.session_state['open_job']}", timeout=10)
+            resp = httpx.get(f"{API_BASE}/api/jobs/{job_id}", timeout=10)
             resp.raise_for_status()
             show_job(resp.json())
         except httpx.ConnectError:
