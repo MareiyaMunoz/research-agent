@@ -3,6 +3,7 @@
 __pycache__/
 *.pyc
 .cache/
+.agents/
 logs/
 PROJECT_PLAN.md
 AGENTS.md
